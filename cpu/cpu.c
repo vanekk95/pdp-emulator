@@ -87,6 +87,7 @@ int vcpu_init(vcpu_t* vcpu, void* mem)
 //	vcpu->regs[SP];			// FIXME: Need to deal with it 
 
 	vcpu->psw = (uint16_t*)((uint8_t*)mem + PS_ADDR);
+	vcpu->br_points = (uint8_t*)((uint8_t*)mem + BR_POINT_ADDR);
 	
 	PS_INIT(vcpu);
 
@@ -154,6 +155,38 @@ void vcpu_print(vcpu_t* vcpu)
 	printf("REG 7: 0x%x\n", vcpu->regs[PC]);						
 }
 
+void set_breakpoint(vcpu_t* vcpu, uint16_t address)		// FIXME: Need to check
+{
+	int set = address / 8;
+	int disp = address % 8;
+	vcpu->br_points[set] |= (0x01 << (8 - disp)); 
+}
+
+void remove_breakpoint(vcpu_t* vcpu, uint16_t address)
+{
+	int set = address / 8;
+	int disp = address % 8;
+	vcpu->br_points[set] &= (0xff ^ (0x1 << (8 - disp)));	
+}
+
+int is_break(vcpu_t* vcpu, uint16_t address)		 // FIXME: Need to check 
+{
+	int set = address / 8;
+	int disp = address % 8;
+	uint8_t mask = vcpu->br_points[set];
+	
+	mask &= (0x01 << (8 - disp));
+	mask = (mask >> (8 - disp)); //
+
+	if (mask)
+	{	
+		printf("Breakpoint was set at address: 0x%x\n", address);
+	}
+
+	return mask;
+}
+
+
 
 exec_status_t cpu_exec(vcpu_t* vcpu)
 {
@@ -177,9 +210,9 @@ void set_step_flag(vcpu_t* vcpu)
 	vcpu->step_flag = 1;
 }
 
-void cpu_emulation()
+void cpu_emulation(vcpu_t* vcpu)
 {
-	vcpu_t* vcpu = (vcpu_t*)malloc(sizeof(vcpu_t));
+//	vcpu_t* vcpu = (vcpu_t*)malloc(sizeof(vcpu_t));
 
 	emu_init(vcpu);	
 	vcpu_print(vcpu);	
@@ -188,10 +221,13 @@ void cpu_emulation()
 	
 	while (1)
 	{
+		if (is_break(vcpu, vcpu->regs[PC]))
+			SET_STOP_FLAG(vcpu);
+
 		if (!vcpu->stop_flag || vcpu->step_flag)
 		{
 			if (vcpu->stop_flag)			
-				vcpu->step_flag = 0;	
+				RESET_STEP_FLAG(vcpu);	
 
 			exec_st = cpu_exec(vcpu);			
 			vcpu_print(vcpu);

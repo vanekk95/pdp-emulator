@@ -6,9 +6,76 @@
 #define GPR_NUM	8
 #define ADDR_SPACE_SIZE	0x20000	 //128K in order to contain registers, need to fix it more accurate later
 #define MEM_SPACE_SIZE	0x10000	 // 64K	
+#define BR_POINT_ADDR	0x10010  // 65536 + 16
+
 
 #define PS_ADDR			0x0FFFE
 #define PS_INIT_MASK 	0x0003		//0b0000000000000011	
+
+#define BREAK_BIT_MAP_SIZE_BYTES	1024 	
+
+
+typedef uint16_t reg16_t;
+typedef uint16_t pdp_reg;
+typedef uint16_t instr_t;
+typedef int16_t  word;
+typedef int8_t byte;
+
+
+typedef enum reg_id
+{
+	REG0,
+	REG1,
+	REG2,
+	REG3,
+	REG4,
+	REG5,
+	REG6,
+	REG7,
+
+	SP = REG6,
+	PC = REG7
+}	reg_t;
+
+typedef struct ps	
+{
+	union 
+	{
+		reg16_t reg_val;
+		struct 
+		{	
+			reg16_t curmode:2;					
+			reg16_t prevmode:2;
+			reg16_t reserved:4;
+			reg16_t priority:3;
+			reg16_t t:1;
+			reg16_t n:1;
+			reg16_t z:1;
+			reg16_t v:1;
+			reg16_t c:1;
+		};
+	};
+} __attribute__((packed)) ps_t;
+
+
+typedef struct vcpu
+{
+	pdp_reg* regs;
+	ps_t* psw;
+	void* mem_entry;
+	uint8_t stop_flag;
+	uint8_t step_flag;
+	uint8_t* br_points;
+
+} vcpu_t;
+
+typedef enum exec_status
+{	
+	EXEC_SUCCESS,
+	EXEC_UNDEFINED
+} exec_status_t;
+
+struct vcpu vcpu;
 
 #define GET_C(vcpu, bit_c)	\
 	do {	\
@@ -115,66 +182,24 @@
 		pc = vcpu->regs[PC];	\
 	} while (0)
 
+#define SET_STOP_FLAG(vcpu)	\
+	do {	\
+		vcpu->stop_flag = 1;	\
+	} while (0)
 
+#define SET_STEP_FLAG(vcpu)	\
+	do {	\
+		vcpu->step_flag = 1;	\
+	} while (0)
 
-typedef uint16_t reg16_t;
-typedef uint16_t pdp_reg;
-typedef uint16_t instr_t;
-typedef int16_t  word;
-typedef int8_t byte;
+#define RESET_STOP_FLAG(vcpu)	\
+	do {	\
+		vcpu->stop_flag = 0;	\
+	} while (0)
 
-
-typedef enum reg_id
-{
-	REG0,
-	REG1,
-	REG2,
-	REG3,
-	REG4,
-	REG5,
-	REG6,
-	REG7,
-
-	SP = REG6,
-	PC = REG7
-}	reg_t;
-
-typedef struct ps	
-{
-	union 
-	{
-		reg16_t reg_val;
-		struct 
-		{	
-			reg16_t curmode:2;					
-			reg16_t prevmode:2;
-			reg16_t reserved:4;
-			reg16_t priority:3;
-			reg16_t t:1;
-			reg16_t n:1;
-			reg16_t z:1;
-			reg16_t v:1;
-			reg16_t c:1;
-		};
-	};
-} __attribute__((packed)) ps_t;
-
-
-typedef struct vcpu
-{
-	pdp_reg* regs;
-	ps_t* psw;
-	void* mem_entry;
-	uint8_t stop_flag;
-	uint8_t step_flag;
-} vcpu_t;
-
-typedef enum exec_status
-{	
-	EXEC_SUCCESS,
-	EXEC_UNDEFINED
-} exec_status_t;
-
-
+#define RESET_STEP_FLAG(vcpu)	\
+	do {	\
+		vcpu->step_flag = 0;	\
+	} while (0)
 
 #endif	// CPU_H
