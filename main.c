@@ -10,6 +10,7 @@
 
 int main()
 {
+/*	
 	vcpu_t* vcpu = (vcpu_t*)malloc(sizeof(vcpu_t));
 
 	emu_init(vcpu);	
@@ -23,7 +24,8 @@ int main()
 		exec_st = cpu_exec(vcpu);			
 		vcpu_print(vcpu);
 	}
-
+*/
+	cpu_emulation();	
 
 	return 0;
 }

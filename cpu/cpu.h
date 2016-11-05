@@ -165,7 +165,8 @@ typedef struct vcpu
 	pdp_reg* regs;
 	ps_t* psw;
 	void* mem_entry;
-
+	uint8_t stop_flag;
+	uint8_t step_flag;
 } vcpu_t;
 
 typedef enum exec_status

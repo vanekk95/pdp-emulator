@@ -90,6 +90,9 @@ int vcpu_init(vcpu_t* vcpu, void* mem)
 	
 	PS_INIT(vcpu);
 
+	vcpu->stop_flag = 0;
+	vcpu->step_flag = 0;
+
 	// FIXME: if to write LOAD_N() here 
 	// SEGMENTATION FAULT WILL OCCUR						
 
@@ -123,7 +126,6 @@ uint16_t fetch_instr(vcpu_t* vcpu)
 
 	memcpy(&op, (uint8_t*)(vcpu->mem_entry) + vcpu->regs[PC], sizeof(uint8_t) * 2);
 
-//	printf("mem value: 0x%x\n", *(uint16_t*)((uint8_t*)(vcpu->mem_entry) + vcpu->regs[PC]));
 
 	printf("op: 0x%x\n", op);
 
@@ -163,5 +165,40 @@ exec_status_t cpu_exec(vcpu_t* vcpu)
 		return EXEC_UNDEFINED;		
 
 	return instr->execute(vcpu, instr, op);
+}
+
+void stop_emulator(vcpu_t* vcpu)
+{
+	vcpu->stop_flag = 1;
+}
+
+void set_step_flag(vcpu_t* vcpu)
+{
+	vcpu->step_flag = 1;
+}
+
+void cpu_emulation()
+{
+	vcpu_t* vcpu = (vcpu_t*)malloc(sizeof(vcpu_t));
+
+	emu_init(vcpu);	
+	vcpu_print(vcpu);	
+	
+	exec_status_t exec_st = EXEC_SUCCESS;
+	
+	while (1)
+	{
+		if (!vcpu->stop_flag || vcpu->step_flag)
+		{
+			if (vcpu->stop_flag)			
+				vcpu->step_flag = 0;	
+
+			exec_st = cpu_exec(vcpu);			
+			vcpu_print(vcpu);
+			
+			if (exec_st == EXEC_UNDEFINED)
+				break;	
+		}
+	}
 }
 
