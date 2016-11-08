@@ -231,4 +231,7 @@ struct vcpu vcpu;
 		vcpu->step_flag = 0;	\
 	} while (0)
 
+#define GET_CPU_REG(vcpu, num)	vcpu->regs[num]
+
+
 #endif	// CPU_H
