@@ -4,9 +4,12 @@
 #include <stdint.h>
 
 #define GPR_NUM	8
-#define ADDR_SPACE_SIZE	0x20000	 //128K in order to contain registers, need to fix it more accurate later
-#define MEM_SPACE_SIZE	0x10000	 // 64K	
-#define BR_POINT_ADDR	0x10010  // 65536 + 16
+#define ADDR_SPACE_SIZE		0x20000	 // 128K in order to contain registers, need to fix it more accurate later
+#define MEM_SPACE_SIZE		0x10000	 // 64K	
+#define BR_POINT_ADDR		0x10010  // 65536 + 16
+#define KB_INTERRUPT_VEC	0x30	 //	48 in dec
+#define KB_STAT_REG			0x0FF70
+#define KB_DATA_REG			0x0FF72
 
 
 #define PS_ADDR			0x0FFFE
@@ -57,7 +60,6 @@ typedef struct ps
 	};
 } __attribute__((packed)) ps_t;
 
-
 typedef struct vcpu
 {
 	pdp_reg* regs;
@@ -66,6 +68,8 @@ typedef struct vcpu
 	uint8_t stop_flag;
 	uint8_t step_flag;
 	uint8_t* br_points;
+	uint16_t* kb_stat_reg;
+	uint16_t* kb_data_reg;
 
 } vcpu_t;
 
@@ -76,6 +80,31 @@ typedef enum exec_status
 } exec_status_t;
 
 struct vcpu vcpu;
+
+
+#define SET_KB_STAT_REG(vcpu)	\
+	do {	\
+		*(vcpu->kb_stat_reg) &= 0x0080;	\
+ 	} while (0)
+
+#define RESET_KB_STAT_REG(vcpu)	\
+	do {	\
+		*(vcpu->kb_stat_reg) &= 0x0000;	\
+	} while (0)  
+
+#define GET_KB_STAT_REG(vcpu)	(*(vcpu->kb_stat_reg) >> 7)
+
+#define SET_KB_DATA_REG(vcpu, data)	\
+	do {	\
+		*(vcpu->kb_data_reg) = data;	\
+	} while (0)
+
+#define GET_KB_DATA_REG(vcpu)	(*(vcpu->kb_data_reg))
+
+#define SET_PSW(vcpu, value)	\
+	do {	\
+		(*(vcpu->psw)).reg_val = (value);	\
+	} while (0)
 
 #define GET_C(vcpu, bit_c)	\
 	do {	\

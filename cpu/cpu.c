@@ -75,7 +75,16 @@ int read_file(char* path, void* mem)
 	return 0;
 }
 
+void interrupt_handler(vcpu_t* vcpu)
+{
+	*(uint16_t*)((uint8_t*)vcpu->mem_entry + vcpu->regs[SP]) = (*(vcpu->psw)).reg_val; 
+	vcpu->regs[SP] -= 2;
+	*(uint16_t*)((uint8_t*)vcpu->mem_entry + vcpu->regs[SP]) = vcpu->regs[PC];	
+	vcpu->regs[SP] -= 2;
 
+	vcpu->regs[PC] = *(uint16_t*)((uint8_t*)vcpu->mem_entry + KB_INTERRUPT_VEC);
+	(*(vcpu->psw)).reg_val = *(uint16_t*)((uint8_t*)vcpu->mem_entry + KB_INTERRUPT_VEC + 2);	
+}
 
 int vcpu_init(vcpu_t* vcpu, void* mem)
 {
@@ -88,7 +97,9 @@ int vcpu_init(vcpu_t* vcpu, void* mem)
 
 	vcpu->psw = (uint16_t*)((uint8_t*)mem + PS_ADDR);
 	vcpu->br_points = (uint8_t*)((uint8_t*)mem + BR_POINT_ADDR);
-	
+	vcpu->kb_stat_reg = (uint16_t*)((uint8_t*)mem + KB_STAT_REG);
+	vcpu->kb_data_reg = (uint16_t*)((uint8_t*)mem + KB_DATA_REG);
+
 	PS_INIT(vcpu);
 
 	vcpu->stop_flag = 0;
@@ -123,21 +134,21 @@ uint16_t fetch_instr(vcpu_t* vcpu)
 		
 	uint16_t op = 0;
 
-	printf("PC: 0x%llx\n", vcpu->regs[PC]);
+	if (GET_KB_STAT_REG(vcpu))
+	{
+		printf("Keyboard interrupt was caught\n");
+		printf("Previous PC: 0x%llx\n", vcpu->regs[PC]);
+		interrupt_handler(vcpu);	
+		printf("PC switched to: 0x%llx\n", vcpu->regs[PC]);
+	}
+	else
+	{
+		printf("PC: 0x%llx\n", vcpu->regs[PC]);
+	}
 
 	memcpy(&op, (uint8_t*)(vcpu->mem_entry) + vcpu->regs[PC], sizeof(uint8_t) * 2);
-
-
 	printf("op: 0x%x\n", op);
 
-	int i = 0;
-/*
-	for (i = 0; i < 11; i++)
-	{
-		printf("mem entry: 0x%x\n", ((uint8_t*)vcpu->mem_entry)[i]);
-
-	}
-*/
 	vcpu->regs[PC] += 2;
 
 	return op;
@@ -153,20 +164,6 @@ void vcpu_print(vcpu_t* vcpu)
 	printf("REG 5: 0x%x\n", vcpu->regs[REG5]);
 	printf("REG 6: 0x%x\n", vcpu->regs[SP]);
 	printf("REG 7: 0x%x\n", vcpu->regs[PC]);						
-}
-
-void set_breakpoint(vcpu_t* vcpu, uint16_t address)		// FIXME: Need to check
-{
-	int set = address / 8;
-	int disp = address % 8;
-	vcpu->br_points[set] |= (0x01 << (8 - disp)); 
-}
-
-void remove_breakpoint(vcpu_t* vcpu, uint16_t address)
-{
-	int set = address / 8;
-	int disp = address % 8;
-	vcpu->br_points[set] &= (0xff ^ (0x1 << (8 - disp)));	
 }
 
 int is_break(vcpu_t* vcpu, uint16_t address)		 // FIXME: Need to check 
@@ -186,8 +183,6 @@ int is_break(vcpu_t* vcpu, uint16_t address)		 // FIXME: Need to check
 	return mask;
 }
 
-
-
 exec_status_t cpu_exec(vcpu_t* vcpu)
 {
 	instr_t op = fetch_instr(vcpu);
@@ -200,41 +195,8 @@ exec_status_t cpu_exec(vcpu_t* vcpu)
 	return instr->execute(vcpu, instr, op);
 }
 
-void stop_emulator(vcpu_t* vcpu)
-{
-	vcpu->stop_flag = 1;
-}
 
-void set_step_flag(vcpu_t* vcpu)
-{
-	vcpu->step_flag = 1;
-}
 
-void cpu_emulation(vcpu_t* vcpu)
-{
-//	vcpu_t* vcpu = (vcpu_t*)malloc(sizeof(vcpu_t));
 
-	emu_init(vcpu);	
-	vcpu_print(vcpu);	
-	
-	exec_status_t exec_st = EXEC_SUCCESS;
-	
-	while (1)
-	{
-		if (is_break(vcpu, vcpu->regs[PC]))
-			SET_STOP_FLAG(vcpu);
 
-		if (!vcpu->stop_flag || vcpu->step_flag)
-		{
-			if (vcpu->stop_flag)			
-				RESET_STEP_FLAG(vcpu);	
-
-			exec_st = cpu_exec(vcpu);			
-			vcpu_print(vcpu);
-			
-			if (exec_st == EXEC_UNDEFINED)
-				break;	
-		}
-	}
-}
 

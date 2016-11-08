@@ -47,4 +47,11 @@ exec_status_t bhis_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op);
 exec_status_t blo_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op);
 exec_status_t jmp_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op);
 
+
+/* subroutine and interrupts */
+
+exec_status_t rti_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op);
+
+
+
 #endif //EMULATION_H

@@ -259,6 +259,15 @@ uint16_t fetch_op_general(vcpu_t* vcpu, uint16_t disp, uint16_t mode, uint16_t i
 		case REL_DEF_PC:
 			return get_rel_def_pc(vcpu, addr);		
 
+		case SP_DEF:
+		case SP_AUTOINC:
+		case SP_AUTOINC_DEF:
+		case SP_AUTODEC:
+		case SP_INDEX:
+		case SP_INDEX_DEF:
+			printf("Stack pointer address modes is not implemented yet\n");
+			abort(); 
+
 		default:
 			printf("Operands' fetch failed\n");
 			abort();

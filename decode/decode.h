@@ -38,6 +38,13 @@ typedef struct instr_desc
 #define ABS_PC				31
 #define REL_PC				55
 #define REL_DEF_PC			63
+								
+#define SP_DEF				0x0E
+#define SP_AUTOINC			0x16
+#define SP_AUTOINC_DEF		0x1e
+#define SP_AUTODEC			0x26
+#define SP_INDEX			0x36
+#define SP_INDEX_DEF		0x3e
 
 
 #define ISA_MODE(op, isa_mode)	\
