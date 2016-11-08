@@ -5,6 +5,8 @@ cmake_policy(SET CMP0015 NEW) # relative pathes given to link_directories
 find_package (Qt5Widgets)
 find_package (Threads)
 
+LIST (APPEND FLAGS_COMMON -m64)
+
 set(SRC_DIR "gui")
 
 list (APPEND DIR_LIST

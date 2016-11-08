@@ -2,6 +2,7 @@
 #include <malloc.h>
 #include <string.h>
 
+
 Process::Process(SharedMem *sharedMem) {
     numberOfPixel = 100;
     matrix = (unsigned char *)calloc(sizeof(unsigned char), numberOfPixel*numberOfPixel);

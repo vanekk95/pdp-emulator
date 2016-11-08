@@ -1,6 +1,7 @@
 #include "widget.h"
 #include "ui_widget.h"
 #include "formain.h"
+#include "cpu_api.h"
 
 
 Widget::Widget(QWidget *parent, Arg *arg) :
@@ -67,6 +68,7 @@ void Widget::slotUpdateRegister() {
 
 void Widget::slotButtonRun() {
     //process.run();
+    //cpu_emulation(&vcpu);
 }
 
 void Widget::slotButtonStopReset() {

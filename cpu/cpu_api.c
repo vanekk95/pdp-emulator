@@ -78,7 +78,6 @@ void remove_breakpoint(vcpu_t* vcpu, uint16_t address)
 	vcpu->br_points[set] &= (0xff ^ (0x1 << (8 - disp)));	
 }
 
-
 uint16_t get_register(vcpu_t* vcpu, uint8_t num)
 {
 	return GET_CPU_REG(vcpu, num);

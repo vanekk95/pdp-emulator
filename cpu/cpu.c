@@ -187,12 +187,16 @@ exec_status_t cpu_exec(vcpu_t* vcpu)
 {
 	instr_t op = fetch_instr(vcpu);
 
-	instr_desc_t* instr = lookup_table(op);
+	instr_desc_t* instr;
+	lookup_table(op, &instr);
 
-	if (instr == NULL)
-		return EXEC_UNDEFINED;		
+	if (instr == NULL)				// FIXME: Need to deal with it properly
+		return EXEC_UNDEFINED;
+		
 
-	return instr->execute(vcpu, instr, op);
+	exec_status_t st = instr->execute(vcpu, instr, op);
+
+	return st;
 }
 
 
