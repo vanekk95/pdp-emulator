@@ -28,42 +28,6 @@ void throw_kb_interrupt(vcpu_t* vcpu, uint8_t data)
 	SET_KB_STAT_REG(vcpu);
 }
 
-
-/*
-int cpu_emulation(vcpu_t* vcpu, char* path)
-{
-	emu_init(vcpu, path);	
-	vcpu_print(vcpu);	
-
-	exec_status_t exec_st = EXEC_SUCCESS;
-	
-	while (1)
-	{
-		if (is_break(vcpu, vcpu->regs[PC]))
-			SET_STOP_FLAG(vcpu);
-
-		if (!vcpu->stop_flag || vcpu->step_flag)
-		{
-			if (vcpu->stop_flag)			
-				RESET_STEP_FLAG(vcpu);	
-
-			exec_st = cpu_exec(vcpu);			
-			vcpu_print(vcpu);
-			
-			if (exec_st == EXEC_UNDEFINED)
-				return 1;	
-		
-			if (exec_st == EXEC_END)
-				break;
-		}
-	}
-
-	return 0;
-}
-*/
-
-
-
 void run_emulator(vcpu_t* vcpu)
 {
 	if (!(vcpu->is_running))
@@ -93,12 +57,14 @@ void emu_deinit(vcpu_t* vcpu)
 
 */
 
+/*
 int cpu_emulation(vcpu_t* vcpu, char* path)
 {
 	emu_init(vcpu, path);	
 	vcpu_print(vcpu);
 
 	emulator_initialized = 1;
+	printf("emulator initialized\n");	
 
 	while (1)
 	{
@@ -130,11 +96,11 @@ int cpu_emulation(vcpu_t* vcpu, char* path)
 				}
 			}			
 			
-//			if (!(vcpu->is_running))
-//				vcpu_restore(vcpu, path);				
+			if (!(vcpu->is_running))
+				vcpu_restore(vcpu, path);				
 
-//			if (exec_st == EXEC_END || exec_st == EXEC_UNDEFINED)
-//				vcpu_restore(vcpu, path); 
+			if (exec_st == EXEC_END || exec_st == EXEC_UNDEFINED)
+				vcpu_restore(vcpu, path); 
 
 			if (exec_st == EXEC_END || exec_st == EXEC_UNDEFINED)
 				break;
@@ -143,7 +109,61 @@ int cpu_emulation(vcpu_t* vcpu, char* path)
 
 	return 0;
 }
+*/
 
+int cpu_emulation(vcpu_t** vcpu, char* path)
+{
+	emu_init(*vcpu, path);	
+	vcpu_print(*vcpu);
+
+	emulator_initialized = 1;
+	printf("emulator initialized\n");	
+
+	while (1)
+	{
+		if ((*vcpu)->is_running)
+		{
+			exec_status_t exec_st = EXEC_SUCCESS;
+			
+			while (1)
+			{
+				if (!((*vcpu)->is_running))
+					break; 
+
+				if (is_break(*vcpu, (*vcpu)->regs[PC]))
+					SET_STOP_FLAG((*vcpu));
+
+				if (! (*vcpu)->stop_flag || (*vcpu)->step_flag)
+				{
+					if ((*vcpu)->stop_flag)			
+						RESET_STEP_FLAG((*vcpu));	
+
+					exec_st = cpu_exec((*vcpu));			
+					vcpu_print(*vcpu);
+					
+					// sleep(1); // FIXME: Just for debug
+
+					if (exec_st == EXEC_UNDEFINED)
+						break;	
+				
+					if (exec_st == EXEC_END)
+						break;
+				}
+			}			
+			
+			if (!((*vcpu)->is_running))
+				vcpu_restore(*vcpu, path);				
+
+			if (exec_st == EXEC_END || exec_st == EXEC_UNDEFINED)
+				vcpu_restore(*vcpu, path); 
+
+			if (exec_st == EXEC_END || exec_st == EXEC_UNDEFINED)
+				break;
+		}	
+	}
+
+	return 0;
+}
 
 void stop_emulator(vcpu_t* vcpu)
 {

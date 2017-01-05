@@ -10,7 +10,7 @@
 	int emulator_initialized;
 
 	void throw_kb_interrupt(vcpu_t* vcpu, uint8_t data);
-	int cpu_emulation(vcpu_t* vcpu, char* path);
+	int cpu_emulation(vcpu_t** vcpu, char* path);
 	void stop_emulator(vcpu_t* vcpu);
 	void step_emulator(vcpu_t* vcpu);
 	void run_emulator(vcpu_t* vcpu);

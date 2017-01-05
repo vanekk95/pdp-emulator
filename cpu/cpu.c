@@ -93,8 +93,8 @@ int vcpu_init(vcpu_t* vcpu, void* mem, char* path_to_rom)
 	PS_INIT(vcpu);
 
 	vcpu->stop_flag = 0;
-//	vcpu->is_running = 0;
-	vcpu->is_running = 1;
+	vcpu->is_running = 0;
+//	vcpu->is_running = 1;
 
 	vcpu->step_flag = 0;
 

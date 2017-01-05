@@ -1,13 +1,19 @@
 #include "widget.h"
 #include "formain.h"
+#include <stdlib.h>
+#include <string.h>
+
 #include "cpu.h"
 #include "cpu_api.h"
-
 
 void *cpu(void *p){
     Arg *arg = (Arg *)p;
     Process process(arg->sharedMem, arg->callList);
     useconds_t usec = 300;
+
+    vcpu_t* vcpu = (vcpu_t*)arg->vcpu;
+   	cpu_emulation(&vcpu, "/home/sabramov/test_pdp/hello.txt"); 
+
     while (arg->working){
         process.checkCallList();
         usleep(usec);
@@ -42,6 +48,8 @@ int main(int argc, char *argv[])
     arg.argv = argv;
     arg.sharedMem = &sharedMem;
     arg.callList = &callList;
+    arg.vcpu = (vcpu_t*)malloc(sizeof(vcpu_t));
+    memset(arg.vcpu, 0, sizeof(vcpu_t));
     arg.working = 1;
 
     pthread_t gui_st, cpu_st;

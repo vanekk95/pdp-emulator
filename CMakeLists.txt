@@ -49,6 +49,7 @@ list (APPEND PdpemuBin_src
 qt5_wrap_cpp(PdpemuLib_hdr_moc ${PdpemuLib_hdr})
 qt5_wrap_ui (PdpemuLib_ui_moc  ${PdpemuLib_ui})
 
+
 include_directories (${PROJECT_SOURCE_DIR})
 include_directories (${PROJECT_BINARY_DIR})
 include_directories (${SRC_DIR})

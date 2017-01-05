@@ -8,6 +8,9 @@
 #include <pthread.h>
 #include <unistd.h>
 
+//#include "cpu.h"
+//#include "cpu_api.h"
+
 typedef struct AsmCommand {
     char *command; // or char[*magic*]
     int address;
@@ -34,6 +37,7 @@ typedef struct Arg {
     char **argv;
     SharedMem *sharedMem;
     CallList *callList;
+    void* vcpu;
     int working;
 } Arg;
 

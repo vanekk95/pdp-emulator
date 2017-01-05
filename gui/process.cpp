@@ -2,8 +2,6 @@
 #include <malloc.h>
 #include <string.h>
 
-#include "cpu_api.h"
-
 Process::Process(SharedMem *sharedMem, CallList *callList) {
     this->callList = callList;
     numberOfPixel = 100;

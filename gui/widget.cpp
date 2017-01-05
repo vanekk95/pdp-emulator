@@ -3,6 +3,9 @@
 #include "formain.h"
 #include <QTableWidget>
 
+#include "cpu_api.h"
+#include "cpu.h"
+
 Widget::Widget(QWidget *parent, Arg *arg) :
     QWidget(parent),
     ui(new Ui::Widget)
@@ -12,6 +15,8 @@ Widget::Widget(QWidget *parent, Arg *arg) :
     while (!arg->sharedMem->isFull);
     sharedMem = arg->sharedMem;
     callList = arg->callList;
+
+    vcpu = arg->vcpu;   // Added
 
     tableModel = new TableModel();
     tableModel->setSharedMem(sharedMem);
@@ -102,26 +107,31 @@ void Widget::setEnableButton(State state) {
 
 void Widget::slotButtonRun() {
     callList->doRun = 1;
+    run_emulator((vcpu_t*)vcpu); 
     setEnableButton(StateRun);
 }
 
 void Widget::slotButtonStop() {
     callList->doStopReset = 1;
+    stop_emulator((vcpu_t*)vcpu);    
     setEnableButton(StateStop);
 }
 
 void Widget::slotButtonReset() {
     callList->doStopReset = 1;
+    reset_emulator((vcpu_t*)vcpu);
     setEnableButton(StateInit);
 }
 
 void Widget::slotButtonContinue() {
     callList->doRun = 1;
+    run_emulator((vcpu_t*)vcpu);    
     setEnableButton(StateRun);
 }
 
 void Widget::slotButtonStep() {
     callList->doStep = 1;
+    step_emulator((vcpu_t*)vcpu);    
     setEnableButton(StateStop);
 }
 

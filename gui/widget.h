@@ -34,6 +34,8 @@ private:
     CallList *callList;
     TableModel *tableModel;
 
+    void* vcpu;     // Added vcpu
+
     void setEnableButton(State state);
 
 private slots:
