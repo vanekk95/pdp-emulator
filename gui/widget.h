@@ -7,10 +7,17 @@
 #include "process.h"
 #include <QTableView>
 #include "formain.h"
+#include "styleddelegate.h"
 
 namespace Ui {
 class Widget;
 }
+
+enum State {
+    StateInit,
+    StateRun,
+    StateStop
+};
 
 class Widget : public QWidget
 {
@@ -24,13 +31,19 @@ private:
     Ui::Widget *ui;
     QTimer *timer;
     SharedMem *sharedMem;
+    CallList *callList;
+    TableModel *tableModel;
+
+    void setEnableButton(State state);
 
 private slots:
     void slotButtonRun();
-    void slotButtonStopReset();
+    void slotButtonContinue();
+    void slotButtonStop();
+    void slotButtonReset();
     void slotButtonStep();
     void slotUpdateRegister();
-    //void userclicked(QTableViewItem *item);
+    void userClicked(QModelIndex index);
 };
 
 

@@ -9,7 +9,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
-
+#include <sys/mman.h>
 
 
 uint8_t exec_array[] = 
@@ -21,57 +21,41 @@ uint8_t exec_array[] =
 	0b01111111, 0b01111111, 0b01111111, 0b01111111, 
 	0b00000011, 0b00000000, 0b01111111, 0b01111111
 };
-// 	0b00000100, 0b01100100, 0b01111111, 0b01111111,
 
 
-int read_file(char* path, void* mem)
+int load_from_rom(char* path, void* mem)
 {
-/*
-	int fd = open(path, O_RDWR);
+	int fd = open(path, O_RDONLY);
 
 	if (fd == -1)
-	{	
-		printf("Can not open file \n");
+	{
+		printf("Can not open file\n");
 		abort();
 	}
 
 	long long size = lseek(fd, 0, SEEK_END);
+	printf("size: %lld\n", size);
 
-	printf("number of rom bytes: %lld\n", size);
-*/
+	void* mapped_area = mmap(NULL, size, PROT_READ, MAP_SHARED, fd, 0);
 
-	int size = sizeof(exec_array);
+	uint8_t* buf = malloc(sizeof(uint8_t) * (size/sizeof(uint8_t))); 
 
-	printf("array size: %d\n", size);
+	int i = 0, j = 0;
+	int res = 0;
 
-	memcpy(mem, exec_array, size);
-
-	int i = 0;
-
-	for (i = 0; i < size; i++)
+	for (i = 0; i < size / 8; i++)
 	{
-		printf("mem: 0x%x\n", ((uint8_t*)mem)[i]);
+ 		res = 0;	
+ 		
+ 		for (j = 0; j < 8; j++)
+  			res += (((uint8_t*)mapped_area)[i * 8 + j] - '0') * ((1 << (8 - j - 1)));
 
+		buf[i] = res;
 	}
 
-/*
-	char* buf = (uint8_t*)malloc(sizeof(char) * size);
-	memset(buf, 0, size);
+	
+	memcpy((uint8_t*)mem + 0x200, buf, size/sizeof(uint8_t));
 
-	int rd = read(fd, buf, size);
-
-	if (rd == -1)
-	{
-		printf("Read error \n");
-		abort();
-	}
-
-	memcpy(mem, buf, size);
-
-	printf("mem: 0x%x\n", *((uint16_t*)mem));
-
-	free(buf);
-*/
 	return 0;
 }
 
@@ -86,34 +70,58 @@ void interrupt_handler(vcpu_t* vcpu)
 	(*(vcpu->psw)).reg_val = *(uint16_t*)((uint8_t*)vcpu->mem_entry + KB_INTERRUPT_VEC + 2);	
 }
 
-int vcpu_init(vcpu_t* vcpu, void* mem)
+int vcpu_init(vcpu_t* vcpu, void* mem, char* path_to_rom)
 {
 	printf("vcpu init\n");	
 	vcpu->mem_entry = mem;
 	vcpu->regs = (uint16_t*)((uint8_t*)mem + MEM_SPACE_SIZE);
 
-	vcpu->regs[PC] = 0x0000;
 //	vcpu->regs[SP];			// FIXME: Need to deal with it 
 
+	vcpu->regs[PC] = 0x200;
+	
 	vcpu->psw = (uint16_t*)((uint8_t*)mem + PS_ADDR);
 	vcpu->br_points = (uint8_t*)((uint8_t*)mem + BR_POINT_ADDR);
 	vcpu->kb_stat_reg = (uint16_t*)((uint8_t*)mem + KB_STAT_REG);
 	vcpu->kb_data_reg = (uint16_t*)((uint8_t*)mem + KB_DATA_REG);
+	vcpu->out_stat_reg = (uint16_t*)((uint8_t*)mem + OUT_STAT_REG);
+	vcpu->out_data_reg = (uint16_t*)((uint8_t*)mem + OUT_DATA_REG);
+
+	INIT_OUT_STAT_REG(vcpu);
+// FIXME: Need to enable kb and out stat regs 
 
 	PS_INIT(vcpu);
 
 	vcpu->stop_flag = 0;
+//	vcpu->is_running = 0;
+	vcpu->is_running = 1;
+
 	vcpu->step_flag = 0;
 
-	// FIXME: if to write LOAD_N() here 
-	// SEGMENTATION FAULT WILL OCCUR						
-
-	read_file("rom_file.txt", vcpu->mem_entry);
+	load_from_rom(path_to_rom, vcpu->mem_entry);
 
 	return 0;
 }
 
-int emu_init(vcpu_t* vcpu)
+int vcpu_restore(vcpu_t* vcpu, char* path_to_rom)	// FIXME: Need to check 
+{
+	memset((uint8_t*)vcpu->regs, 0, sizeof(uint16_t) * 8);
+	memset(vcpu->mem_entry, 0, MEM_SPACE_SIZE);
+//	memset(vcpu->br_points, 0, )		// TODO: Need to deal with brakpoints issue
+
+	vcpu->regs[PC] = 0x200;
+
+	vcpu->stop_flag = 0;
+	vcpu->is_running = 0;
+	vcpu->step_flag = 0;
+
+	load_from_rom(path_to_rom, vcpu->mem_entry);	
+
+	return 0;
+}
+
+
+int emu_init(vcpu_t* vcpu, char* path_to_rom)
 {
 	void* mem_entry = mmap(NULL, ADDR_SPACE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, -1, 0); 
 
@@ -123,13 +131,15 @@ int emu_init(vcpu_t* vcpu)
 		abort();
 	}
 
-	vcpu_init(vcpu, mem_entry);
+	vcpu_init(vcpu, mem_entry, path_to_rom);
 
 	return 0;
 }
 
 uint16_t fetch_instr(vcpu_t* vcpu)
 {
+	printf(" ------- \n");
+
 	printf("Instruction fetch \n");
 		
 	uint16_t op = 0;
@@ -143,7 +153,7 @@ uint16_t fetch_instr(vcpu_t* vcpu)
 	}
 	else
 	{
-		printf("PC: 0x%llx\n", vcpu->regs[PC]);
+		printf("PC: %o\n", vcpu->regs[PC]);	
 	}
 
 	memcpy(&op, (uint8_t*)(vcpu->mem_entry) + vcpu->regs[PC], sizeof(uint8_t) * 2);
@@ -156,6 +166,7 @@ uint16_t fetch_instr(vcpu_t* vcpu)
 
 void vcpu_print(vcpu_t* vcpu)
 {
+/*
 	printf("REG 0: 0x%x\n", vcpu->regs[REG0]);
 	printf("REG 1: 0x%x\n", vcpu->regs[REG1]);
 	printf("REG 2: 0x%x\n", vcpu->regs[REG2]);
@@ -164,6 +175,31 @@ void vcpu_print(vcpu_t* vcpu)
 	printf("REG 5: 0x%x\n", vcpu->regs[REG5]);
 	printf("REG 6: 0x%x\n", vcpu->regs[SP]);
 	printf("REG 7: 0x%x\n", vcpu->regs[PC]);						
+*/
+
+/*
+	printf("REG 0: %o\n", vcpu->regs[REG0]);
+	printf("REG 1: %o\n", vcpu->regs[REG1]);
+	printf("REG 2: %o\n", vcpu->regs[REG2]);
+	printf("REG 3: %o\n", vcpu->regs[REG3]);
+	printf("REG 4: %o\n", vcpu->regs[REG4]);
+	printf("REG 5: %o\n", vcpu->regs[REG5]);
+	printf("REG 6: %o\n", vcpu->regs[SP]);
+	printf("REG 7: %o\n", vcpu->regs[PC]);
+*/
+	printf("REG 0: %o REG 1: %o REG 2: %o REG 3: %o REG 4: %o REG 5: %o REG 6: %o REG 7: %o\n",  
+		vcpu->regs[REG0], vcpu->regs[REG1], vcpu->regs[REG2], vcpu->regs[REG3], 
+		vcpu->regs[REG4], vcpu->regs[REG5], vcpu->regs[SP], vcpu->regs[PC]);
+
+	uint8_t n = 0, z = 0, v = 0, c = 0;
+
+	GET_N(vcpu, n);
+	GET_Z(vcpu, z);
+	GET_V(vcpu, v);
+	GET_C(vcpu, c);	
+
+	printf("flags: n:%d z:%d v:%d c:%d\n", n, z, v, c);
+
 }
 
 int is_break(vcpu_t* vcpu, uint16_t address)		 // FIXME: Need to check 
@@ -191,10 +227,9 @@ exec_status_t cpu_exec(vcpu_t* vcpu)
 	lookup_table(op, &instr);
 
 	if (instr == NULL)				// FIXME: Need to deal with it properly
-		return EXEC_UNDEFINED;
-		
+		return EXEC_UNDEFINED;		// Such case lead to seg fault, need to fix
 
-	exec_status_t st = instr->execute(vcpu, instr, op);
+	exec_status_t st = instr->execute(vcpu, instr, op, instr->mode);
 
 	return st;
 }

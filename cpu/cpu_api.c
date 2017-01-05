@@ -12,6 +12,9 @@
 #include <string.h>
 
 
+/* TODO: Parallel syncronisation on mutex */
+
+
 void throw_kb_interrupt(vcpu_t* vcpu, uint8_t data)
 {
 	SET_KB_DATA_REG(vcpu, data);	
@@ -26,13 +29,12 @@ void throw_kb_interrupt(vcpu_t* vcpu, uint8_t data)
 }
 
 
-void cpu_emulation(vcpu_t* vcpu)
+/*
+int cpu_emulation(vcpu_t* vcpu, char* path)
 {
-//	vcpu_t* vcpu = (vcpu_t*)malloc(sizeof(vcpu_t));
-
-	emu_init(vcpu);	
+	emu_init(vcpu, path);	
 	vcpu_print(vcpu);	
-	
+
 	exec_status_t exec_st = EXEC_SUCCESS;
 	
 	while (1)
@@ -49,20 +51,110 @@ void cpu_emulation(vcpu_t* vcpu)
 			vcpu_print(vcpu);
 			
 			if (exec_st == EXEC_UNDEFINED)
-				break;	
+				return 1;	
+		
+			if (exec_st == EXEC_END)
+				break;
 		}
 	}
+
+	return 0;
 }
+*/
+
+
+
+void run_emulator(vcpu_t* vcpu)
+{
+	if (!(vcpu->is_running))
+		vcpu->is_running = 1;
+	else
+		vcpu->stop_flag = 0;
+}
+
+void reset_emulator(vcpu_t* vcpu)
+{
+	CLEAR_RUN_FLAG(vcpu);
+}
+
+
+/* TODO: Need to solve halt and deinit issue */ 
+
+/*
+void halt_emulator(vcpu_t* vcpu)
+{
+
+}
+
+void emu_deinit(vcpu_t* vcpu)
+{
+	
+} 
+
+*/
+
+int cpu_emulation(vcpu_t* vcpu, char* path)
+{
+	emu_init(vcpu, path);	
+	vcpu_print(vcpu);
+
+	emulator_initialized = 1;
+
+	while (1)
+	{
+		if (vcpu->is_running)
+		{
+			exec_status_t exec_st = EXEC_SUCCESS;
+			
+			while (1)
+			{
+				if (!(vcpu->is_running))
+					break; 
+
+				if (is_break(vcpu, vcpu->regs[PC]))
+					SET_STOP_FLAG(vcpu);
+
+				if (!vcpu->stop_flag || vcpu->step_flag)
+				{
+					if (vcpu->stop_flag)			
+						RESET_STEP_FLAG(vcpu);	
+
+					exec_st = cpu_exec(vcpu);			
+					vcpu_print(vcpu);
+					
+					if (exec_st == EXEC_UNDEFINED)
+						break;	
+				
+					if (exec_st == EXEC_END)
+						break;
+				}
+			}			
+			
+//			if (!(vcpu->is_running))
+//				vcpu_restore(vcpu, path);				
+
+//			if (exec_st == EXEC_END || exec_st == EXEC_UNDEFINED)
+//				vcpu_restore(vcpu, path); 
+
+			if (exec_st == EXEC_END || exec_st == EXEC_UNDEFINED)
+				break;
+		}	
+	}
+
+	return 0;
+}
+
 
 void stop_emulator(vcpu_t* vcpu)
 {
 	vcpu->stop_flag = 1;
 }
 
-void set_step_flag(vcpu_t* vcpu)
+void step_emulator(vcpu_t* vcpu)
 {
 	vcpu->step_flag = 1;
 }
+
 
 void set_breakpoint(vcpu_t* vcpu, uint16_t address)		// FIXME: Need to check
 {

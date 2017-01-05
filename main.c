@@ -8,9 +8,9 @@
 	Check byte operations
 */
 
-int main()
+int main(int argc, char** argv)
 {
-	cpu_emulation(&vcpu);	
+	cpu_emulation(&vcpu, argv[1]);	
 
 	return 0;
 }

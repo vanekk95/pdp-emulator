@@ -16,20 +16,25 @@ int TableModel::rowCount(const QModelIndex &parent) const {
 }
 
 int TableModel::columnCount(const QModelIndex &parent) const {
-    return 2; // количество колонок сделаем также фиксированным
+    return 3; // количество колонок сделаем также фиксированным
 }
 
 QVariant TableModel::data(const QModelIndex &index, int role) const {
     if (role == Qt::DisplayRole) {
+        QString unswer;
         if (index.column() == 0) {
+            if (sharedMem->asmCommand[index.row()].breakePointIsSet)
+                unswer = "     X";
+            else
+                unswer = "";
+        } else if (index.column() == 1) {
             char str[100];
             sprintf(str, "%x", sharedMem->asmCommand[index.row()].address);
-            QString unswer = "0x" + QString(str);
-            return QVariant(unswer);
+            unswer = "0x" + QString(str);
         } else {
-            QString unswer = QString(sharedMem->asmCommand[index.row()].command);
-            return QVariant(unswer);
+            unswer = QString(sharedMem->asmCommand[index.row()].command);
         }
+        return QVariant(unswer);
     }
     return QVariant();
 }
@@ -41,13 +46,20 @@ QVariant TableModel::headerData(int section, Qt::Orientation orientation, int ro
             switch (section)
             {
             case 0:
-                return QString("Address");
+                return QString("BP");
             case 1:
+                return QString("Address");
+            case 2:
                 return QString("Command");
             }
         }
     }
     return QVariant();
+}
+
+void TableModel::headerDoubleClick(QModelIndex index) {
+    sharedMem->asmCommand[index.row()].breakePointIsSet =
+            !sharedMem->asmCommand[index.row()].breakePointIsSet;
 }
 
 

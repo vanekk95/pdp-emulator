@@ -1,9 +1,10 @@
-project(Pdpemu)
+project(pdpemu)
 cmake_minimum_required(VERSION 2.8)
 cmake_policy(SET CMP0015 NEW) # relative pathes given to link_directories
 
 find_package (Qt5Widgets)
 find_package (Threads)
+find_package (Qt5Sql) 
 
 LIST (APPEND FLAGS_COMMON -m64)
 
@@ -24,6 +25,7 @@ list (APPEND PdpemuLib_src
 		${SRC_DIR}/tablemodel.cpp
 		${SRC_DIR}/bitmapwidget.cpp
 		${SRC_DIR}/widget.cpp		
+		${SRC_DIR}/styleddelegate.cpp
 	)
 
 list (APPEND PdpemuLib_hdr 
@@ -32,6 +34,7 @@ list (APPEND PdpemuLib_hdr
 		${SRC_DIR}/bitmapwidget.h
 		${SRC_DIR}/widget.h		
 		${SRC_DIR}/formain.h
+		${SRC_DIR}/styleddelegate.h
 	)
 
 list (APPEND PdpemuLib_ui 
@@ -62,12 +65,13 @@ add_library (EMULATOR_LIB SHARED
 )
 
 target_link_libraries (PdpemuLib Qt5::Widgets)
+target_link_libraries (PdpemuLib Qt5::Sql)
 
-add_executable(Pdpemu ${PdpemuBin_src})
+add_executable(pdpemu ${PdpemuBin_src})
 
-target_link_libraries (Pdpemu PdpemuLib)
-target_link_libraries (Pdpemu ${CMAKE_THREAD_LIBS_INIT})
-target_link_libraries (Pdpemu EMULATOR_LIB)
+target_link_libraries (pdpemu PdpemuLib)
+target_link_libraries (pdpemu ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries (pdpemu EMULATOR_LIB)
 
 
 

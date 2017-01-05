@@ -2,8 +2,10 @@
 #include <malloc.h>
 #include <string.h>
 
+#include "cpu_api.h"
 
-Process::Process(SharedMem *sharedMem) {
+Process::Process(SharedMem *sharedMem, CallList *callList) {
+    this->callList = callList;
     numberOfPixel = 100;
     matrix = (unsigned char *)calloc(sizeof(unsigned char), numberOfPixel*numberOfPixel);
     if (!matrix) {
@@ -35,8 +37,10 @@ Process::Process(SharedMem *sharedMem) {
     strcpy(asmCommand[6].command, "MSG:   .ASCIZ /Hello, world!/");
     strcpy(asmCommand[7].command, "       .END    HELLO");
 
-    for (int i = 0; i < numberOfCommand; i++)
+    for (int i = 0; i < numberOfCommand; i++) {
         asmCommand[i].address = i+100;
+        asmCommand[i].breakePointIsSet = 0;
+    }
 
     registers = (short int *)malloc(sizeof(short int) * 8);
     if (!registers) {
@@ -52,20 +56,15 @@ Process::Process(SharedMem *sharedMem) {
         return;
     }
     *flags = 129;
+    color = 0;
     sharedMem->asmCommand = asmCommand;
     sharedMem->flags = flags;
     sharedMem->vidio_memory = matrix;
     sharedMem->registers = registers;
     sharedMem->isFull = 1;
-
-    printf("sharedMem in process = %p\n vidio_mem = %p\t asmCommand = %p\n",
-           sharedMem, sharedMem->vidio_memory, sharedMem->asmCommand);
-    for (int i = 0; i < numberOfCommand; i++)
-        printf("command[%d] = \"%s\"\n", i, sharedMem->asmCommand[i].command);
 }
 
 Process::~Process() {
-/*
     free(matrix);
 
     for (int i = 0; i < numberOfCommand; i++)
@@ -73,16 +72,36 @@ Process::~Process() {
     free(asmCommand);
     free(registers);
     free(flags);
-*/
+}
+
+void Process::checkCallList() {
+    if (callList->doRun) {
+        callList->doRun = 0;
+        run();
+    }
+    if (callList->doStopReset) {
+        callList->doStopReset = 0;
+        stopReset();
+    }
+    if (callList->doStep) {
+        callList->doStep = 0;
+        step();
+    }
+    if (callList->setBreakPointForAddress >= 0) {
+        setBreakePoint(callList->setBreakPointForAddress);
+        callList->setBreakPointForAddress = -1;
+    }
 }
 
 void Process::run() {
-    unsigned char c = 0;
+    unsigned char c = color;
     for (int x = 0; x < numberOfPixel; x++)
     for (int y = 0; y < numberOfPixel; y++) {
         matrix[x*numberOfPixel + y] = c++;
     }
+    color +=4;
 
+    
 }
 
 void Process::stopReset() {
@@ -92,7 +111,21 @@ void Process::stopReset() {
     }
 }
 
-
 void Process::step() {
 
 }
+
+void Process::setBreakePoint(int address) {
+    printf("set breakpoint to address %d\n", address);
+}
+
+
+
+
+
+
+
+
+
+
+

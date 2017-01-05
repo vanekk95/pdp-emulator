@@ -2,6 +2,7 @@
 #define TABLEMODEL_H
 
 #include <QAbstractTableModel>
+#include <QSqlTableModel>
 #include <QVariant>
 #include "process.h"
 
@@ -11,6 +12,8 @@ class TableModel : public QAbstractTableModel
 public:
     explicit TableModel(QObject *parent = 0);
     void setSharedMem(SharedMem *sharedMem);
+    void headerDoubleClick(QModelIndex index);
+    int rowCount();
 
 signals:
 
@@ -25,4 +28,7 @@ private:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
 };
+
+
+
 #endif // TABLEMODEL_H
