@@ -197,24 +197,19 @@ uint16_t get_abs_pc(vcpu_t* vcpu, uint8_t** address)
 	return *(uint16_t*)((uint8_t*)vcpu->mem_entry + post_word);	
 }
 
-/*
+
 uint16_t get_rel_pc(vcpu_t* vcpu, uint8_t** address)
 {
 	uint16_t post_word = 0, operand_addr = 0;
 	
 	post_word = fetch_word_from_mem(vcpu);
-	printf("post word %o\n", post_word);
-
-	printf("pc: %o\n", vcpu->regs[PC]);
-
 	*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[PC] + post_word);	
-
-	printf("value in mem: %o\n", *((uint8_t*)vcpu->mem_entry + vcpu->regs[PC] + post_word));
 
 	return *((uint8_t*)vcpu->mem_entry + vcpu->regs[PC] + post_word);
 }
-*/
 
+
+/*
 uint16_t get_rel_pc(vcpu_t* vcpu, uint8_t** address)
 {
 	uint16_t post_word = 0, operand_addr = 0;
@@ -231,6 +226,7 @@ uint16_t get_rel_pc(vcpu_t* vcpu, uint8_t** address)
 //	return *((uint8_t*)vcpu->mem_entry + vcpu->regs[PC] + post_word);
 	return (vcpu->regs[PC] + post_word);
 }
+*/
 
 uint16_t get_rel_def_pc(vcpu_t* vcpu, uint8_t** address)
 {

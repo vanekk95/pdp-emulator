@@ -33,9 +33,12 @@ exec_status_t jsr_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_
 	GET_DST(op, dst_disp);	
 
 	uint8_t* dst_addr;
-	dst = fetch_op_general(vcpu, dst_disp, dst_mode, 0, &dst_addr);	
+//	dst = fetch_op_general(vcpu, dst_disp, dst_mode, 0, &dst_addr);	
+	fetch_op_general(vcpu, dst_disp, dst_mode, 0, &dst_addr);
+	dst_addr -= (uint8_t*)vcpu->mem_entry;
 
-	tmp = dst;	
+//	tmp = dst;	
+	tmp = dst_addr;
 
 	GET_REG_JSR(op, reg_disp);	
 
