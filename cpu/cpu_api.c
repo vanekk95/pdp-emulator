@@ -42,21 +42,6 @@ void reset_emulator(vcpu_t* vcpu)
 }
 
 
-/* TODO: Need to solve halt and deinit issue */ 
-
-/*
-void halt_emulator(vcpu_t* vcpu)
-{
-
-}
-
-void emu_deinit(vcpu_t* vcpu)
-{
-	
-} 
-
-*/
-
 /*
 int cpu_emulation(vcpu_t* vcpu, char* path)
 {
@@ -117,10 +102,15 @@ int cpu_emulation(vcpu_t** vcpu, char* path)
 	vcpu_print(*vcpu);
 
 	emulator_initialized = 1;
+	emulator_halted = 0;
+
 	printf("emulator initialized\n");	
 
 	while (1)
 	{
+		if (emulator_halted)
+			break;
+
 		if ((*vcpu)->is_running)
 		{
 			exec_status_t exec_st = EXEC_SUCCESS;
@@ -141,7 +131,7 @@ int cpu_emulation(vcpu_t** vcpu, char* path)
 					exec_st = cpu_exec((*vcpu));			
 					vcpu_print(*vcpu);
 					
-					// sleep(1); // FIXME: Just for debug
+					 sleep(1); // FIXME: Just for debug
 
 					if (exec_st == EXEC_UNDEFINED)
 						break;	
@@ -150,7 +140,10 @@ int cpu_emulation(vcpu_t** vcpu, char* path)
 						break;
 				}
 			}			
-			
+
+			if (emulator_halted)
+				break;
+
 			if (!((*vcpu)->is_running))
 				vcpu_restore(*vcpu, path);				
 
@@ -162,8 +155,17 @@ int cpu_emulation(vcpu_t** vcpu, char* path)
 		}	
 	}
 
+	vcpu_deinit (vcpu);
+
 	return 0;
 }
+
+void halt_emulator(vcpu_t* vcpu)
+{
+	vcpu->is_running = 0;
+	emulator_halted = 1;
+}
+
 
 void stop_emulator(vcpu_t* vcpu)
 {
@@ -193,4 +195,35 @@ void remove_breakpoint(vcpu_t* vcpu, uint16_t address)
 uint16_t get_register(vcpu_t* vcpu, uint8_t num)
 {
 	return GET_CPU_REG(vcpu, num);
+}
+
+/* FIXME: Need to rewrite get flag functions  
+	in smarter style */
+
+uint8_t get_nflag(vcpu_t* vcpu)
+{
+	uint8_t bit_n;
+	GET_N(vcpu, bit_n);
+	return bit_n;
+}
+
+uint8_t get_cflag(vcpu_t* vcpu)
+{
+	uint8_t bit_c;
+	GET_C(vcpu, bit_c);
+	return bit_c;
+}
+
+uint8_t get_vflag(vcpu_t* vcpu)
+{
+	uint8_t bit_v;
+	GET_V(vcpu, bit_v);
+	return bit_v;
+}
+
+uint8_t get_zflag(vcpu_t* vcpu)
+{
+	uint8_t bit_z;
+	GET_Z(vcpu, bit_z);
+	return bit_z;
 }

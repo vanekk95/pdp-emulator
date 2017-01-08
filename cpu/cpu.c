@@ -120,6 +120,10 @@ int vcpu_restore(vcpu_t* vcpu, char* path_to_rom)	// FIXME: Need to check
 	return 0;
 }
 
+int vcpu_deinit (vcpu_t* vcpu)
+{
+	return munmap(vcpu->mem_entry, ADDR_SPACE_SIZE); 
+}
 
 int emu_init(vcpu_t* vcpu, char* path_to_rom)
 {
@@ -166,27 +170,6 @@ uint16_t fetch_instr(vcpu_t* vcpu)
 
 void vcpu_print(vcpu_t* vcpu)
 {
-/*
-	printf("REG 0: 0x%x\n", vcpu->regs[REG0]);
-	printf("REG 1: 0x%x\n", vcpu->regs[REG1]);
-	printf("REG 2: 0x%x\n", vcpu->regs[REG2]);
-	printf("REG 3: 0x%x\n", vcpu->regs[REG3]);
-	printf("REG 4: 0x%x\n", vcpu->regs[REG4]);
-	printf("REG 5: 0x%x\n", vcpu->regs[REG5]);
-	printf("REG 6: 0x%x\n", vcpu->regs[SP]);
-	printf("REG 7: 0x%x\n", vcpu->regs[PC]);						
-*/
-
-/*
-	printf("REG 0: %o\n", vcpu->regs[REG0]);
-	printf("REG 1: %o\n", vcpu->regs[REG1]);
-	printf("REG 2: %o\n", vcpu->regs[REG2]);
-	printf("REG 3: %o\n", vcpu->regs[REG3]);
-	printf("REG 4: %o\n", vcpu->regs[REG4]);
-	printf("REG 5: %o\n", vcpu->regs[REG5]);
-	printf("REG 6: %o\n", vcpu->regs[SP]);
-	printf("REG 7: %o\n", vcpu->regs[PC]);
-*/
 	printf("REG 0: %o REG 1: %o REG 2: %o REG 3: %o REG 4: %o REG 5: %o REG 6: %o REG 7: %o\n",  
 		vcpu->regs[REG0], vcpu->regs[REG1], vcpu->regs[REG2], vcpu->regs[REG3], 
 		vcpu->regs[REG4], vcpu->regs[REG5], vcpu->regs[SP], vcpu->regs[PC]);
