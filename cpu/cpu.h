@@ -77,12 +77,12 @@ typedef struct vcpu
 int emulator_initialized;
 int emulator_halted;
 
-typedef enum exec_status
+typedef enum emu_stat
 {	
-	EXEC_SUCCESS,
-	EXEC_END,
-	EXEC_UNDEFINED
-} exec_status_t;
+	EMU_SUCCESS,
+	EMU_END,
+	EMU_UNDEFINED
+} emu_stat_t;
 
 #define GET_HI_BIT(val, mode)	((val >> (15 - 8 * mode)) & 0x0001)			
 

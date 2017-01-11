@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include "emu_helper.h"
 
-exec_status_t rti_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)	
+emu_stat_t rti_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)	
 {
 	uint16_t sp = 0;
 	uint8_t* sp_addr;
@@ -17,10 +17,10 @@ exec_status_t rti_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_
 	sp = fetch_op_general(vcpu, 0b110, AUTOINC_ADDR, 0, &sp_addr);
 	SET_PSW(vcpu, sp);		
 
-	return EXEC_SUCCESS;
+	return EMU_SUCCESS;
 }
 
-exec_status_t jsr_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
+emu_stat_t jsr_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
 {
 	uint16_t tmp = 0;
 	uint16_t dst_disp = 0;
@@ -51,10 +51,10 @@ exec_status_t jsr_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_
 
 	vcpu->regs[PC] = tmp;
 
-	return EXEC_SUCCESS;
+	return EMU_SUCCESS;
 }
 
-exec_status_t rts_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
+emu_stat_t rts_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
 {
 	uint16_t reg_disp = 0;
 	uint16_t reg = 0;
@@ -71,5 +71,5 @@ exec_status_t rts_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_
 	
 	writeback_dst_ops(vcpu, sp, reg_disp, REG_ADDR, 0, NULL);	
 
-	return EXEC_SUCCESS;
+	return EMU_SUCCESS;
 }

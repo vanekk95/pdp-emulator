@@ -6,7 +6,7 @@
 #include "emu_helper.h"
 
 
-exec_status_t clr_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
+emu_stat_t clr_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
 {
 	uint16_t dst_disp = 0, dst = 0, dst_mode = 0;
 
@@ -26,10 +26,10 @@ exec_status_t clr_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_
 	CLEAR_V(vcpu);
 	CLEAR_C(vcpu);
 
-	return EXEC_SUCCESS;
+	return EMU_SUCCESS;
 }
 
-exec_status_t com_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
+emu_stat_t com_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
 {
 	uint16_t dst_disp = 0, dst = 0, dst_mode = 0;
 
@@ -49,10 +49,10 @@ exec_status_t com_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_
 	CLEAR_V(vcpu);
 	SET_C(vcpu);
 
-	return EXEC_SUCCESS;
+	return EMU_SUCCESS;
 }
 
-exec_status_t inc_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
+emu_stat_t inc_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
 {
 	uint16_t dst_disp = 0, dst = 0, dst_mode = 0;
 
@@ -75,10 +75,10 @@ exec_status_t inc_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_
 	else
 		CLEAR_V(vcpu);
 
-	return EXEC_SUCCESS;
+	return EMU_SUCCESS;
 }
 
-exec_status_t dec_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
+emu_stat_t dec_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
 {
 	uint16_t dst_disp = 0, dst = 0, dst_mode = 0, src_dst = 0;
 
@@ -102,10 +102,10 @@ exec_status_t dec_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_
 	else
 		CLEAR_V(vcpu);
 
-	return EXEC_SUCCESS;
+	return EMU_SUCCESS;
 }
 
-exec_status_t neg_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
+emu_stat_t neg_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
 {
 	uint16_t dst_disp = 0, dst = 0, dst_mode = 0;
 
@@ -133,10 +133,10 @@ exec_status_t neg_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_
 	else	
 		SET_C(vcpu);
 
-	return EXEC_SUCCESS;
+	return EMU_SUCCESS;
 }
 
-exec_status_t tst_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
+emu_stat_t tst_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
 {
 	uint16_t dst_disp = 0, dst = 0, dst_mode = 0;
 
@@ -152,10 +152,10 @@ exec_status_t tst_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_
 	CLEAR_V(vcpu);
 	CLEAR_C(vcpu);
 
-	return EXEC_SUCCESS;
+	return EMU_SUCCESS;
 }
 
-exec_status_t asr_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
+emu_stat_t asr_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
 {
 	uint16_t dst_disp = 0, dst_mode = 0;
 	int16_t dst = 0;
@@ -182,10 +182,10 @@ exec_status_t asr_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_
 	LOAD_V(vcpu, high_bit ^ low_bit);
 	LOAD_C(vcpu, low_bit);
 
-	return EXEC_SUCCESS;
+	return EMU_SUCCESS;
 }
 
-exec_status_t asl_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
+emu_stat_t asl_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
 {
 	uint16_t dst_disp = 0, dst = 0, dst_mode = 0;
 
@@ -210,10 +210,10 @@ exec_status_t asl_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_
 	LOAD_V(vcpu, neg_bit ^ high_bit);
 	LOAD_C(vcpu, high_bit);
 
-	return EXEC_SUCCESS;
+	return EMU_SUCCESS;
 }
 
-exec_status_t ror_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
+emu_stat_t ror_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
 {
 	uint16_t dst_disp = 0, dst = 0, dst_mode = 0;
 
@@ -240,11 +240,11 @@ exec_status_t ror_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_
 	LOAD_V(vcpu, prev_bit_c ^ low_bit);
 	LOAD_C(vcpu, low_bit);	
 
-	return EXEC_SUCCESS;
+	return EMU_SUCCESS;
 }
 
 
-exec_status_t rol_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
+emu_stat_t rol_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
 {
 	uint16_t dst_disp = 0, dst_mode = 0;
 	int16_t dst = 0;
@@ -275,11 +275,11 @@ exec_status_t rol_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_
 	LOAD_V(vcpu, neg_bit ^ high_bit);
 	LOAD_C(vcpu, high_bit);
 
-	return EXEC_SUCCESS;
+	return EMU_SUCCESS;
 }
 
 
-exec_status_t swab_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
+emu_stat_t swab_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
 {
 	uint16_t dst_disp = 0, dst_mode = 0;
 	int16_t dst = 0;
@@ -305,7 +305,7 @@ exec_status_t swab_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr
 	CLEAR_V(vcpu);
 	CLEAR_C(vcpu);
 
-	return EXEC_SUCCESS;
+	return EMU_SUCCESS;
 }
 
 

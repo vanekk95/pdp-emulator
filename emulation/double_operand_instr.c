@@ -15,7 +15,7 @@
 */
 
 /*
-exec_status_t mov_exec(vcpu_t* vcpu, uint16_t src, uint16_t dst_disp, uint16_t dst_mode, uint8_t* dst_addr, instr_mode_t mode)
+emu_stat_t mov_exec(vcpu_t* vcpu, uint16_t src, uint16_t dst_disp, uint16_t dst_mode, uint8_t* dst_addr, instr_mode_t mode)
 {
 	uint16_t dst = src;
 
@@ -30,12 +30,12 @@ exec_status_t mov_exec(vcpu_t* vcpu, uint16_t src, uint16_t dst_disp, uint16_t d
 
 	CLEAR_V(vcpu);	
 
-	return EXEC_SUCCESS;
+	return EMU_SUCCESS;
 }
 */
 
 
-exec_status_t mov_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
+emu_stat_t mov_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
 {
 	uint16_t dst_disp = 0, src_disp = 0;
 	uint16_t dst = 0, src = 0;
@@ -69,11 +69,11 @@ exec_status_t mov_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_
 	LOAD_Z(vcpu, src);
 	CLEAR_V(vcpu);	
 
-	return EXEC_SUCCESS;
+	return EMU_SUCCESS;
 
 }
 
-exec_status_t add_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
+emu_stat_t add_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
 {
 	uint16_t dst_disp = 0, src_disp = 0;
 	uint16_t dst = 0, src = 0, src_dst = 0;
@@ -102,10 +102,10 @@ exec_status_t add_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_
 	ADD_OVF_HANDLER(vcpu, src, src_dst, dst, mode);
 	ADD_CARRY_HANDLER(vcpu, src, src_dst, dst, mode);
 	
-	return EXEC_SUCCESS;
+	return EMU_SUCCESS;
 }
 
-exec_status_t sub_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
+emu_stat_t sub_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
 {
 	uint16_t dst_disp = 0, src_disp = 0;
 	uint16_t dst = 0, src = 0, src_dst = 0;
@@ -134,7 +134,7 @@ exec_status_t sub_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_
 	SUB_OVF_HANDLER(vcpu, src, src_dst, dst, mode);
 	SUB_CARRY_HANDLER(vcpu, src, src_dst, dst, mode);
 
-	return EXEC_SUCCESS;
+	return EMU_SUCCESS;
 }
 
 

@@ -183,7 +183,7 @@ int is_break(vcpu_t* vcpu, uint16_t address)		 // FIXME: Need to check
 	return mask;
 }
 
-exec_status_t cpu_exec(vcpu_t* vcpu)
+emu_stat_t cpu_exec(vcpu_t* vcpu)
 {
 	instr_t op = fetch_instr(vcpu);
 
@@ -191,9 +191,9 @@ exec_status_t cpu_exec(vcpu_t* vcpu)
 	lookup_table(op, &instr);
 
 	if (instr == NULL)				// FIXME: Need to deal with it properly
-		return EXEC_UNDEFINED;		// Such case lead to seg fault, need to fix
+		return EMU_UNDEFINED;		// Such case lead to seg fault, need to fix
 
-	exec_status_t st = instr->execute(vcpu, instr, op, instr->mode);
+	emu_stat_t st = instr->execute(vcpu, instr, op, instr->mode);
 
 	return st;
 }

@@ -52,7 +52,7 @@ int cpu_emulation(vcpu_t* vcpu, char* path)
 	{
 		if (vcpu->is_running)
 		{
-			exec_status_t exec_st = EXEC_SUCCESS;
+			emu_stat_t exec_st = EMU_SUCCESS;
 			
 			while (1)
 			{
@@ -110,7 +110,7 @@ int cpu_emulation(vcpu_t** vcpu, char* path)
 
 		if ((*vcpu)->is_running)
 		{
-			exec_status_t exec_st = EXEC_SUCCESS;
+			emu_stat_t exec_st = EMU_SUCCESS;
 			
 			while (1)
 			{
@@ -130,10 +130,10 @@ int cpu_emulation(vcpu_t** vcpu, char* path)
 					
 					// sleep(1); // FIXME: Just for debug
 
-					if (exec_st == EXEC_UNDEFINED)
+					if (exec_st == EMU_UNDEFINED)
 						break;	
 				
-					if (exec_st == EXEC_END)
+					if (exec_st == EMU_END)
 						break;
 				}
 			}			
@@ -144,10 +144,10 @@ int cpu_emulation(vcpu_t** vcpu, char* path)
 			if (!((*vcpu)->is_running))
 				vcpu_restore(*vcpu, path);				
 
-			if (exec_st == EXEC_END || exec_st == EXEC_UNDEFINED)
+			if (exec_st == EMU_END || exec_st == EMU_UNDEFINED)
 				vcpu_restore(*vcpu, path); 
 
-			if (exec_st == EXEC_END || exec_st == EXEC_UNDEFINED)
+			if (exec_st == EMU_END || exec_st == EMU_UNDEFINED)
 				break;
 		}	
 	}

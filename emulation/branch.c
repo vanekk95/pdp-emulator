@@ -8,7 +8,7 @@
 
 /* FIXME: Need to implement some branches with single template function */ 
 
-exec_status_t br_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
+emu_stat_t br_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
 {
 	uint16_t pc = 0;
 	int8_t offset = 0;			// NOTE: Here we use signed value due to man	
@@ -31,11 +31,11 @@ exec_status_t br_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_m
 
 	printf("updated pc : %d\n", vcpu->regs[PC]);
 
-	return EXEC_SUCCESS;
+	return EMU_SUCCESS;
 }
 
 
-exec_status_t bne_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
+emu_stat_t bne_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
 {
 	uint16_t pc = 0;
 	int8_t offset = 0;			// NOTE: Here we use signed value due to man	
@@ -55,10 +55,10 @@ exec_status_t bne_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_
 		SET_PC(vcpu, pc);
 	}
 
-	return EXEC_SUCCESS;
+	return EMU_SUCCESS;
 }
 
-exec_status_t beq_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
+emu_stat_t beq_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
 {
 	uint16_t pc = 0;
 	int8_t offset = 0;			// NOTE: Here we use signed value due to man	
@@ -78,10 +78,10 @@ exec_status_t beq_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_
 		SET_PC(vcpu, pc);
 	}
 
-	return EXEC_SUCCESS;
+	return EMU_SUCCESS;
 }
 
-exec_status_t bpl_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
+emu_stat_t bpl_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
 {
 	uint16_t pc = 0;
 	int8_t offset = 0;			// NOTE: Here we use signed value due to man	
@@ -101,10 +101,10 @@ exec_status_t bpl_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_
 		SET_PC(vcpu, pc);
 	}	
 
-	return EXEC_SUCCESS;
+	return EMU_SUCCESS;
 }
 
-exec_status_t bmi_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
+emu_stat_t bmi_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
 {
 	uint16_t pc = 0;
 	int8_t offset = 0;			// NOTE: Here we use signed value due to man	
@@ -124,10 +124,10 @@ exec_status_t bmi_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_
 		SET_PC(vcpu, pc);
 	}	
 
-	return EXEC_SUCCESS;
+	return EMU_SUCCESS;
 }
 
-exec_status_t bvc_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
+emu_stat_t bvc_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
 {
 	uint16_t pc = 0;
 	int8_t offset = 0;			// NOTE: Here we use signed value due to man	
@@ -147,10 +147,10 @@ exec_status_t bvc_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_
 		SET_PC(vcpu, pc);
 	}	
 
-	return EXEC_SUCCESS;
+	return EMU_SUCCESS;
 }
 
-exec_status_t bvs_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
+emu_stat_t bvs_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
 {
 	uint16_t pc = 0;
 	int8_t offset = 0;			// NOTE: Here we use signed value due to man	
@@ -170,10 +170,10 @@ exec_status_t bvs_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_
 		SET_PC(vcpu, pc);
 	}	
 
-	return EXEC_SUCCESS;
+	return EMU_SUCCESS;
 }
 
-exec_status_t bcc_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
+emu_stat_t bcc_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
 {
 	uint16_t pc = 0;
 	int8_t offset = 0;			// NOTE: Here we use signed value due to man	
@@ -193,11 +193,11 @@ exec_status_t bcc_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_
 		SET_PC(vcpu, pc);
 	}	
 
-	return EXEC_SUCCESS;
+	return EMU_SUCCESS;
 }
 
 
-exec_status_t bcs_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
+emu_stat_t bcs_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
 {
 	uint16_t pc = 0;
 	int8_t offset = 0;			// NOTE: Here we use signed value due to man	
@@ -217,10 +217,10 @@ exec_status_t bcs_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_
 		SET_PC(vcpu, pc);
 	}	
 
-	return EXEC_SUCCESS;
+	return EMU_SUCCESS;
 }
 
-exec_status_t bge_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
+emu_stat_t bge_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
 {
 	uint16_t pc = 0;
 	int8_t offset = 0;			// NOTE: Here we use signed value due to man	
@@ -241,10 +241,10 @@ exec_status_t bge_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_
 		SET_PC(vcpu, pc);
 	}	
 
-	return EXEC_SUCCESS;
+	return EMU_SUCCESS;
 }
 
-exec_status_t blt_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
+emu_stat_t blt_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
 {
 	uint16_t pc = 0;
 	int8_t offset = 0;			// NOTE: Here we use signed value due to man	
@@ -265,10 +265,10 @@ exec_status_t blt_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_
 		SET_PC(vcpu, pc);
 	}	
 
-	return EXEC_SUCCESS;
+	return EMU_SUCCESS;
 }
 
-exec_status_t bgt_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
+emu_stat_t bgt_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
 {
 	uint16_t pc = 0;
 	int8_t offset = 0;			// NOTE: Here we use signed value due to man	
@@ -290,10 +290,10 @@ exec_status_t bgt_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_
 		SET_PC(vcpu, pc);
 	}	
 
-	return EXEC_SUCCESS;
+	return EMU_SUCCESS;
 }
 
-exec_status_t ble_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
+emu_stat_t ble_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
 {
 	uint16_t pc = 0;
 	int8_t offset = 0;			// NOTE: Here we use signed value due to man	
@@ -315,10 +315,10 @@ exec_status_t ble_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_
 		SET_PC(vcpu, pc);
 	}	
 
-	return EXEC_SUCCESS;
+	return EMU_SUCCESS;
 }
 
-exec_status_t bhi_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
+emu_stat_t bhi_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
 {
 	uint16_t pc = 0;
 	int8_t offset = 0;			// NOTE: Here we use signed value due to man	
@@ -339,10 +339,10 @@ exec_status_t bhi_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_
 		SET_PC(vcpu, pc);
 	}	
 
-	return EXEC_SUCCESS;
+	return EMU_SUCCESS;
 }
 
-exec_status_t blos_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
+emu_stat_t blos_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
 {
 	uint16_t pc = 0;
 	int8_t offset = 0;			// NOTE: Here we use signed value due to man	
@@ -363,11 +363,11 @@ exec_status_t blos_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr
 		SET_PC(vcpu, pc);
 	}	
 
-	return EXEC_SUCCESS;
+	return EMU_SUCCESS;
 }
 
 
-exec_status_t bhis_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
+emu_stat_t bhis_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
 {
 	uint16_t pc = 0;
 	int8_t offset = 0;			// NOTE: Here we use signed value due to man	
@@ -387,10 +387,10 @@ exec_status_t bhis_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr
 		SET_PC(vcpu, pc);
 	}	
 
-	return EXEC_SUCCESS;
+	return EMU_SUCCESS;
 }
 
-exec_status_t blo_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
+emu_stat_t blo_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
 {
 	uint16_t pc = 0;
 	int8_t offset = 0;			// NOTE: Here we use signed value due to man	
@@ -410,11 +410,11 @@ exec_status_t blo_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_
 		SET_PC(vcpu, pc);
 	}	
 
-	return EXEC_SUCCESS;
+	return EMU_SUCCESS;
 }
 
 
-exec_status_t jmp_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
+emu_stat_t jmp_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode)
 {
 	uint16_t dst_disp = 0, dst = 0, dst_mode = 0;
 	
@@ -422,7 +422,7 @@ exec_status_t jmp_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_
 	GET_DST(op, dst_disp);
 
 	if (dst_mode == 0)
-		return EXEC_UNDEFINED;	
+		return EMU_UNDEFINED;	
 
 	uint8_t* dst_addr;
 
@@ -435,5 +435,5 @@ exec_status_t jmp_emu(vcpu_t* vcpu, struct instr_desc *instr, instr_t op, instr_
 	
 	SET_PC(vcpu, pc);
 
-	return EXEC_SUCCESS;
+	return EMU_SUCCESS;
 }

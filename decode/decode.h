@@ -18,7 +18,7 @@ typedef enum instr_mode
 } instr_mode_t;
 
 typedef decode_status_t (*decode_call_t)(vcpu_t *vcpu, struct instr_desc *instr, instr_t op);
-typedef exec_status_t (*emu_call_t)(vcpu_t *vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode);
+typedef emu_stat_t (*emu_call_t)(vcpu_t *vcpu, struct instr_desc *instr, instr_t op, instr_mode_t mode);
 
 typedef struct instr_desc
 {
