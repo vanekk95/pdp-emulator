@@ -5,6 +5,9 @@
 #include "stdio.h"
 #include <stdint.h>
 
+#define GET_BYTE_OPERAND(addr)	*(uint8_t*)addr
+#define GET_WORD_OPERAND(addr)	*(uint16_t*)addr
+
 uint16_t fetch_word_from_mem(vcpu_t* vcpu)
 {
 	uint16_t operand = *(uint16_t*)((uint8_t*)vcpu->mem_entry + vcpu->regs[PC]);
@@ -24,16 +27,12 @@ uint16_t get_reg(vcpu_t* vcpu, uint16_t disp, uint16_t isa_mode)
 
 uint16_t get_reg_def(vcpu_t* vcpu, uint16_t disp, uint16_t isa_mode, uint8_t** address)
 {
+	*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[disp]);
+
 	if (isa_mode)
-	{
-		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[disp]);
-		return *((uint8_t*)vcpu->mem_entry + vcpu->regs[disp]);
-	}	
+		return GET_BYTE_OPERAND(*address);	
 	else
-	{
-		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[disp]);
-		return *(uint16_t*)((uint8_t*)vcpu->mem_entry + vcpu->regs[disp]);
-	}	
+		return GET_WORD_OPERAND(*address);	
 	
 	return 0;
 }
@@ -41,19 +40,16 @@ uint16_t get_reg_def(vcpu_t* vcpu, uint16_t disp, uint16_t isa_mode, uint8_t** a
 uint16_t get_autoinc(vcpu_t* vcpu, uint16_t disp, uint16_t isa_mode, uint8_t** address)
 {
 	uint16_t operand = 0;	
-
+	*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[disp]);
+	
 	if (isa_mode)
 	{
-//		printf("autoincrement\n");	
-//		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[disp] - 1);
-		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[disp]);
-		operand = *((uint8_t*)vcpu->mem_entry + vcpu->regs[disp]);
+		operand = GET_BYTE_OPERAND(*address);
 		vcpu->regs[disp] +=1;			
 	}
 	else
 	{
-		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[disp]);
-		operand = *(uint16_t*)((uint8_t*)vcpu->mem_entry + vcpu->regs[disp]);		
+		operand = GET_WORD_OPERAND(*address);		
 		vcpu->regs[disp] +=2;		
 	}
 
@@ -69,41 +65,29 @@ uint16_t get_autodec(vcpu_t* vcpu, uint16_t disp, uint16_t isa_mode, uint8_t** a
 	if (isa_mode)
 	{
 		vcpu->regs[disp] -= 1;
-//		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[disp] - 1);
 		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[disp]);
-		operand = *((uint8_t*)vcpu->mem_entry + vcpu->regs[disp]);
+		operand = GET_BYTE_OPERAND(*address);
 	}
 	else
 	{
 		vcpu->regs[disp] -=2;
 		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[disp]);
-		operand = *(uint16_t*)((uint8_t*)vcpu->mem_entry + vcpu->regs[disp]);	
+		operand = GET_WORD_OPERAND(*address);	
 	}
 
 	return operand;	
 }
 
-
 uint16_t get_autoinc_def(vcpu_t* vcpu, uint16_t disp, uint16_t isa_mode, uint8_t** address)
 {
-	uint16_t operand_addr = 0;
 	uint16_t operand = 0;															
+	uint16_t operand_addr = *(uint16_t*)((uint8_t*)vcpu->mem_entry + vcpu->regs[disp]);		
+	*address = ((uint8_t*)vcpu->mem_entry + operand_addr);	
 
-	operand_addr = *(uint16_t*)((uint8_t*)vcpu->mem_entry + vcpu->regs[disp]);		
-	
 	if (isa_mode) 
-	{
-//		*address = ((uint8_t*)vcpu->mem_entry + operand_addr - 1);
-//		operand = *((uint8_t*)vcpu->mem_entry + operand_addr - 1);
-		*address = ((uint8_t*)vcpu->mem_entry + operand_addr);
-		operand = *((uint8_t*)vcpu->mem_entry + operand_addr);
-	}	
-
+		operand = GET_BYTE_OPERAND(*address);
 	else
-	{
-		*address = ((uint8_t*)vcpu->mem_entry + operand_addr);
-		operand = *(uint16_t*)((uint8_t*)vcpu->mem_entry + operand_addr);
-	}
+		operand = GET_WORD_OPERAND(*address);
 		
 	vcpu->regs[disp] += 2;
 
@@ -112,128 +96,87 @@ uint16_t get_autoinc_def(vcpu_t* vcpu, uint16_t disp, uint16_t isa_mode, uint8_t
 
 uint16_t get_autodec_def(vcpu_t* vcpu, uint16_t disp, uint16_t isa_mode, uint8_t** address)
 {
-	uint16_t operand_addr = 0;
-	uint16_t operand = 0;
-
 	vcpu->regs[disp] -= 2;															
-
-	operand_addr = *(uint16_t*)((uint8_t*)vcpu->mem_entry + vcpu->regs[disp]);	
+	uint16_t operand_addr = *(uint16_t*)((uint8_t*)vcpu->mem_entry + vcpu->regs[disp]);	
+	*address = ((uint8_t*)vcpu->mem_entry + operand_addr);
 	
 	if (isa_mode)
-	{
-//		*address = ((uint8_t*)vcpu->mem_entry + operand_addr - 1);
-//		operand = *((uint8_t*)vcpu->mem_entry + operand_addr - 1);
-		*address = ((uint8_t*)vcpu->mem_entry + operand_addr);
-		operand = *((uint8_t*)vcpu->mem_entry + operand_addr);
-
-	}
+		return GET_BYTE_OPERAND(*address);
 	else
-	{
-		*address = ((uint8_t*)vcpu->mem_entry + operand_addr);
-		operand = *(uint16_t*)((uint8_t*)vcpu->mem_entry + operand_addr);
-	}
-		
-	return operand;
+		return GET_WORD_OPERAND(*address);
 }
 
 uint16_t get_index(vcpu_t* vcpu, uint16_t disp, uint16_t isa_mode, uint8_t** address)
 {
-	uint16_t operand = 0, post_word = 0;
-	
-	post_word = fetch_word_from_mem(vcpu);
+	uint16_t post_word = fetch_word_from_mem(vcpu);
+	*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[disp] + post_word);
 
 	if (isa_mode)
-	{
-//		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[disp] + post_word - 1);
-//		return *((uint8_t*)vcpu->mem_entry + vcpu->regs[disp] + post_word - 1);
-		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[disp] + post_word);
-		return *((uint8_t*)vcpu->mem_entry + vcpu->regs[disp] + post_word);
-	}
+		return GET_BYTE_OPERAND(*address);
 	else
-	{	
-		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[disp] + post_word);
-		return *(uint16_t*)((uint8_t*)vcpu->mem_entry + vcpu->regs[disp] + post_word);	
-	}
-
-	return 0;
+		return GET_WORD_OPERAND(*address);	
 }
 
 uint16_t get_index_def(vcpu_t* vcpu, uint16_t disp, uint16_t isa_mode, uint8_t** address)
 {
-	uint16_t operand = 0, post_word = 0, operand_addr = 0;
-	post_word = fetch_word_from_mem(vcpu);
-
-	operand_addr = *(uint16_t*)((uint8_t*)vcpu->mem_entry + vcpu->regs[disp] + post_word);	
+	uint16_t post_word = fetch_word_from_mem(vcpu);
+	uint16_t operand_addr = *(uint16_t*)((uint8_t*)vcpu->mem_entry + vcpu->regs[disp] + post_word);	
+	*address = ((uint8_t*)vcpu->mem_entry + operand_addr);
 
 	if (isa_mode)
-	{
-//		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[disp] + post_word - 1);
-//		operand = *((uint8_t*)vcpu->mem_entry + vcpu->regs[disp] + post_word - 1);
-		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[disp] + post_word);
-		operand = *((uint8_t*)vcpu->mem_entry + vcpu->regs[disp] + post_word);
-	}
+		return GET_BYTE_OPERAND(*address);	 
 	else
-	{
-		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[disp] + post_word);
-		operand = *(uint16_t*)((uint8_t*)vcpu->mem_entry + vcpu->regs[disp] + post_word);
-	}	
-	
-	return operand;
+		return GET_WORD_OPERAND(*address);
 }
 
-uint16_t get_imm_pc(vcpu_t* vcpu)  						// FIXME: Need to check all PC helpers
+uint16_t get_imm_pc(vcpu_t* vcpu)
 {
-	uint16_t post_word = 0;
-	post_word = fetch_word_from_mem(vcpu);
-
-	return post_word;
+	return fetch_word_from_mem(vcpu);
 }
 
-uint16_t get_abs_pc(vcpu_t* vcpu, uint8_t** address)
+uint16_t get_abs_pc(vcpu_t* vcpu, uint16_t isa_mode, uint8_t** address)
 {
-	uint16_t post_word = 0;
-	post_word = fetch_word_from_mem(vcpu);
+	uint16_t post_word = fetch_word_from_mem(vcpu);
 	*address = ((uint8_t*)vcpu->mem_entry + post_word);
 
-	return *(uint16_t*)((uint8_t*)vcpu->mem_entry + post_word);	
+	if (isa_mode)
+		return GET_BYTE_OPERAND(*address);
+	else
+		return GET_WORD_OPERAND(*address);	
 }
 
-uint16_t get_rel_pc(vcpu_t* vcpu, uint8_t** address)
+uint16_t get_rel_pc(vcpu_t* vcpu, uint16_t isa_mode, uint8_t** address)
 {
-	uint16_t post_word = 0;
-	post_word = fetch_word_from_mem(vcpu);
+	uint16_t post_word = fetch_word_from_mem(vcpu);
 	*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[PC] + post_word);	
 
-	return *((uint8_t*)vcpu->mem_entry + vcpu->regs[PC] + post_word);
+	if (isa_mode)
+		return GET_BYTE_OPERAND(*address);
+	else
+		return GET_WORD_OPERAND(*address);
 }
 
-uint16_t get_rel_def_pc(vcpu_t* vcpu, uint8_t** address)
+uint16_t get_rel_def_pc(vcpu_t* vcpu, uint16_t isa_mode, uint8_t** address)
 {
-	uint16_t post_word = 0, operand_addr = 0;
-	
-	post_word = fetch_word_from_mem(vcpu);
-	operand_addr = *((uint8_t*)vcpu->mem_entry + vcpu->regs[PC] + post_word);
+	uint16_t post_word = fetch_word_from_mem(vcpu);
+	uint16_t operand_addr = *((uint8_t*)vcpu->mem_entry + vcpu->regs[PC] + post_word);
 	*address = ((uint8_t*)vcpu->mem_entry + operand_addr);	
 
-	return *((uint8_t*)vcpu->mem_entry + operand_addr);	
+	if (isa_mode)
+		return GET_BYTE_OPERAND(*address);
+	else
+		return GET_WORD_OPERAND(*address);
 }
 
 uint16_t get_autoinc_sp(vcpu_t* vcpu, uint16_t isa_mode, uint8_t** address)
 {
 	uint16_t operand = 0;	
-
+	*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[SP]);
+	
 	if (isa_mode)
-	{
-//		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[SP] - 1);
-//		operand = *((uint8_t*)vcpu->mem_entry + vcpu->regs[SP] - 1);						// FIXME: Need to check			
-		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[SP]);
-		operand = *(uint8_t*)((uint8_t*)vcpu->mem_entry + vcpu->regs[SP]);						// FIXME: Need to check			
-	}
+		operand = GET_BYTE_OPERAND(*address);									
 	else
-	{
-		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[SP]);
-		operand = *(uint16_t*)((uint8_t*)vcpu->mem_entry + vcpu->regs[SP]);		// FIXME: Need to check this line's correctness				
-	}
+		operand = GET_WORD_OPERAND(*address);					
 
 	vcpu->regs[SP] +=2;
 	
@@ -241,29 +184,17 @@ uint16_t get_autoinc_sp(vcpu_t* vcpu, uint16_t isa_mode, uint8_t** address)
 }
 
 uint16_t get_autodec_sp(vcpu_t* vcpu, uint16_t isa_mode, uint8_t** address)
-{
-	uint16_t operand = 0;	
-	uint16_t reg_val = 0;
-
+{	
 	vcpu->regs[SP] -=2;
+	*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[SP]);
 
 	if (isa_mode)
-	{
-//		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[SP] - 1);
-//		operand = *((uint8_t*)vcpu->mem_entry + vcpu->regs[SP] - 1);		// FIXME: Need to check this line's correctness
-		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[SP]);
-		operand = *(uint8_t*)((uint8_t*)vcpu->mem_entry + vcpu->regs[SP]);		// FIXME: Need to check this line's correctness
-	}
+		return GET_BYTE_OPERAND(*address);
 	else
-	{
-		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[SP]);
-		operand = *(uint16_t*)((uint8_t*)vcpu->mem_entry + vcpu->regs[SP]);		// FIXME: Need to check this line's correctness		
-	}
-
-	return operand;	
+		return GET_WORD_OPERAND(*address);
 }
 
-uint16_t fetch_op_general(vcpu_t* vcpu, uint16_t disp, uint16_t mode, uint16_t isa_mode, uint8_t** addr)  		// FIXME: Need to review this function
+uint16_t fetch_op_general(vcpu_t* vcpu, uint16_t disp, uint16_t mode, uint16_t isa_mode, uint8_t** addr)  
 {
 	uint16_t operand = 0;
 
@@ -288,25 +219,22 @@ uint16_t fetch_op_general(vcpu_t* vcpu, uint16_t disp, uint16_t mode, uint16_t i
 			return get_autodec_def(vcpu, disp, isa_mode, addr);
 
 		case INDEX_ADDR:
-//			printf("here 2\n");
 			return get_index(vcpu, disp, isa_mode, addr);
 
 		case INDEX_DEF_ADDR:
 			return get_index_def(vcpu, disp, isa_mode, addr);
 		
 		case IMM_PC:
-//			printf("here 0\n");
 			return get_imm_pc(vcpu);
 
 		case ABS_PC:
-			return get_abs_pc(vcpu, addr);
+			return get_abs_pc(vcpu, isa_mode, addr);
 
 		case REL_PC:
-//			printf("relative pc\n");
-			return get_rel_pc(vcpu, addr);
+			return get_rel_pc(vcpu, isa_mode ,addr);
 
 		case REL_DEF_PC:
-			return get_rel_def_pc(vcpu, addr);		
+			return get_rel_def_pc(vcpu, isa_mode, addr);		
 
 		case SP_DEF:
 			return get_reg_def(vcpu, disp, isa_mode, addr);
@@ -334,49 +262,12 @@ uint16_t fetch_op_general(vcpu_t* vcpu, uint16_t disp, uint16_t mode, uint16_t i
 	return 0;
 }
 
-void writeback_src_ops(vcpu_t* vcpu, uint16_t disp, uint16_t mode, uint16_t isa_mode)
-{
-	switch (mode)
-	{
-		case AUTOINC_ADDR:
-
-			if (isa_mode)
-				vcpu->regs[disp] += 1;
-			else
-				vcpu->regs[disp] += 2;				
-
-			break;
-
-		case AUTOINC_DEF_ADDR:
-			
-			vcpu->regs[disp] += 2;			
-			break;
-
-		case AUTODEC_ADDR:
-		
-			if (isa_mode)
-				vcpu->regs[disp] -= 1;
-			else
-				vcpu->regs[disp] -= 2;				
-
-			break;
-
-		case AUTODEC_DEF_ADDR:
-		
-			vcpu->regs[disp] -= 2;			
-			break;
-
-		default:
-			break;
-	}
-}
-
 void set_reg_op(vcpu_t* vcpu, uint16_t disp, uint16_t val, uint16_t isa_mode)
 {
 	if (isa_mode)
 		((uint8_t*)(vcpu->regs))[disp] = val;
 	else
-		vcpu->regs[disp] = val;			// FIXME: Is there byte mode ???
+		vcpu->regs[disp] = val;	
 }
 
 void set_mem_op(vcpu_t* vcpu, uint8_t* addr, uint16_t* val, uint16_t isa_mode)
