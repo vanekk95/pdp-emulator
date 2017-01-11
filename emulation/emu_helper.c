@@ -7,7 +7,7 @@
 
 uint16_t fetch_word_from_mem(vcpu_t* vcpu)
 {
-	uint16_t operand = *(uint16_t*)((uint8_t*)vcpu->mem_entry + vcpu->regs[PC]);			// FIXME: Need to check
+	uint16_t operand = *(uint16_t*)((uint8_t*)vcpu->mem_entry + vcpu->regs[PC]);
 	vcpu->regs[PC] += 2;
 	return operand;
 }
@@ -15,7 +15,7 @@ uint16_t fetch_word_from_mem(vcpu_t* vcpu)
 uint16_t get_reg(vcpu_t* vcpu, uint16_t disp, uint16_t isa_mode)
 {
 	if (isa_mode)
-		return ((uint8_t*)(vcpu->regs))[disp];			// FIXME: Here need to check bytes and words trouble 
+		return ((uint8_t*)(vcpu->regs))[disp];			
 	else
 		return vcpu->regs[disp];
 
@@ -26,8 +26,8 @@ uint16_t get_reg_def(vcpu_t* vcpu, uint16_t disp, uint16_t isa_mode, uint8_t** a
 {
 	if (isa_mode)
 	{
-		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[disp] - 1);
-		return *((uint8_t*)vcpu->mem_entry + vcpu->regs[disp] - 1);;
+		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[disp]);
+		return *((uint8_t*)vcpu->mem_entry + vcpu->regs[disp]);
 	}	
 	else
 	{
@@ -45,17 +45,15 @@ uint16_t get_autoinc(vcpu_t* vcpu, uint16_t disp, uint16_t isa_mode, uint8_t** a
 	if (isa_mode)
 	{
 //		printf("autoincrement\n");	
-		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[disp] - 1);
-//		printf("address: %o\n", vcpu->regs[disp]);
-//		printf("address - 1: %o\n", vcpu->regs[disp] - 1);
-//		operand = *((uint8_t*)vcpu->mem_entry + vcpu->regs[disp] - 1);						// FIXME: Need to check
+//		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[disp] - 1);
+		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[disp]);
 		operand = *((uint8_t*)vcpu->mem_entry + vcpu->regs[disp]);
 		vcpu->regs[disp] +=1;			
 	}
 	else
 	{
 		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[disp]);
-		operand = *(uint16_t*)((uint8_t*)vcpu->mem_entry + vcpu->regs[disp]);		// FIXME: Need to check this line's correctness		
+		operand = *(uint16_t*)((uint8_t*)vcpu->mem_entry + vcpu->regs[disp]);		
 		vcpu->regs[disp] +=2;		
 	}
 
@@ -71,14 +69,15 @@ uint16_t get_autodec(vcpu_t* vcpu, uint16_t disp, uint16_t isa_mode, uint8_t** a
 	if (isa_mode)
 	{
 		vcpu->regs[disp] -= 1;
-		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[disp] - 1);
-		operand = *((uint8_t*)vcpu->mem_entry + vcpu->regs[disp] - 1);		// FIXME: Need to check this line's correctness
+//		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[disp] - 1);
+		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[disp]);
+		operand = *((uint8_t*)vcpu->mem_entry + vcpu->regs[disp]);
 	}
 	else
 	{
 		vcpu->regs[disp] -=2;
 		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[disp]);
-		operand = *(uint16_t*)((uint8_t*)vcpu->mem_entry + vcpu->regs[disp]);		// FIXME: Need to check this line's correctness		
+		operand = *(uint16_t*)((uint8_t*)vcpu->mem_entry + vcpu->regs[disp]);	
 	}
 
 	return operand;	
@@ -89,15 +88,15 @@ uint16_t get_autoinc_def(vcpu_t* vcpu, uint16_t disp, uint16_t isa_mode, uint8_t
 {
 	uint16_t operand_addr = 0;
 	uint16_t operand = 0;															
-	
-	/* FIXME: Issue of byte instructions is not explored yet*/
 
-	operand_addr = *(uint16_t*)((uint8_t*)vcpu->mem_entry + vcpu->regs[disp]);		// FIXME: Need to check this line's correctness
+	operand_addr = *(uint16_t*)((uint8_t*)vcpu->mem_entry + vcpu->regs[disp]);		
 	
 	if (isa_mode) 
 	{
-		*address = ((uint8_t*)vcpu->mem_entry + operand_addr - 1);
-		operand = *((uint8_t*)vcpu->mem_entry + operand_addr - 1);
+//		*address = ((uint8_t*)vcpu->mem_entry + operand_addr - 1);
+//		operand = *((uint8_t*)vcpu->mem_entry + operand_addr - 1);
+		*address = ((uint8_t*)vcpu->mem_entry + operand_addr);
+		operand = *((uint8_t*)vcpu->mem_entry + operand_addr);
 	}	
 
 	else
@@ -115,17 +114,18 @@ uint16_t get_autodec_def(vcpu_t* vcpu, uint16_t disp, uint16_t isa_mode, uint8_t
 {
 	uint16_t operand_addr = 0;
 	uint16_t operand = 0;
-	uint16_t reg_val = 0;
 
-	vcpu->regs[disp] -= 2;															// FIXME: ATTENTION	!!! what to do for byte operations ???
-//	reg_val = vcpu->regs[disp] - 2;
+	vcpu->regs[disp] -= 2;															
 
-	operand_addr = *(uint16_t*)((uint8_t*)vcpu->mem_entry + vcpu->regs[disp]);		// FIXME: Need to check this line's correctness
+	operand_addr = *(uint16_t*)((uint8_t*)vcpu->mem_entry + vcpu->regs[disp]);	
 	
 	if (isa_mode)
 	{
-		*address = ((uint8_t*)vcpu->mem_entry + operand_addr - 1);
-		operand = *((uint8_t*)vcpu->mem_entry + operand_addr - 1);
+//		*address = ((uint8_t*)vcpu->mem_entry + operand_addr - 1);
+//		operand = *((uint8_t*)vcpu->mem_entry + operand_addr - 1);
+		*address = ((uint8_t*)vcpu->mem_entry + operand_addr);
+		operand = *((uint8_t*)vcpu->mem_entry + operand_addr);
+
 	}
 	else
 	{
@@ -144,8 +144,10 @@ uint16_t get_index(vcpu_t* vcpu, uint16_t disp, uint16_t isa_mode, uint8_t** add
 
 	if (isa_mode)
 	{
-		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[disp] + post_word - 1);
-		return *((uint8_t*)vcpu->mem_entry + vcpu->regs[disp] + post_word - 1);
+//		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[disp] + post_word - 1);
+//		return *((uint8_t*)vcpu->mem_entry + vcpu->regs[disp] + post_word - 1);
+		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[disp] + post_word);
+		return *((uint8_t*)vcpu->mem_entry + vcpu->regs[disp] + post_word);
 	}
 	else
 	{	
@@ -165,8 +167,10 @@ uint16_t get_index_def(vcpu_t* vcpu, uint16_t disp, uint16_t isa_mode, uint8_t**
 
 	if (isa_mode)
 	{
-		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[disp] + post_word - 1);
-		operand = *((uint8_t*)vcpu->mem_entry + vcpu->regs[disp] + post_word - 1);
+//		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[disp] + post_word - 1);
+//		operand = *((uint8_t*)vcpu->mem_entry + vcpu->regs[disp] + post_word - 1);
+		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[disp] + post_word);
+		operand = *((uint8_t*)vcpu->mem_entry + vcpu->regs[disp] + post_word);
 	}
 	else
 	{
@@ -181,52 +185,27 @@ uint16_t get_imm_pc(vcpu_t* vcpu)  						// FIXME: Need to check all PC helpers
 {
 	uint16_t post_word = 0;
 	post_word = fetch_word_from_mem(vcpu);
-//	printf("vcpu PC: %o\n", vcpu->regs[PC]);
 
 	return post_word;
 }
 
 uint16_t get_abs_pc(vcpu_t* vcpu, uint8_t** address)
 {
-	uint16_t post_word = 0, operand_addr = 0;
-	
+	uint16_t post_word = 0;
 	post_word = fetch_word_from_mem(vcpu);
 	*address = ((uint8_t*)vcpu->mem_entry + post_word);
-//	printf("post word: %o\n", post_word);
 
 	return *(uint16_t*)((uint8_t*)vcpu->mem_entry + post_word);	
 }
 
-
 uint16_t get_rel_pc(vcpu_t* vcpu, uint8_t** address)
 {
-	uint16_t post_word = 0, operand_addr = 0;
-	
+	uint16_t post_word = 0;
 	post_word = fetch_word_from_mem(vcpu);
 	*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[PC] + post_word);	
 
 	return *((uint8_t*)vcpu->mem_entry + vcpu->regs[PC] + post_word);
 }
-
-
-/*
-uint16_t get_rel_pc(vcpu_t* vcpu, uint8_t** address)
-{
-	uint16_t post_word = 0, operand_addr = 0;
-	
-	post_word = fetch_word_from_mem(vcpu);
-//	printf("post word %o\n", post_word);
-
-//	printf("pc: %o\n", vcpu->regs[PC]);
-
-//	*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[PC] + post_word);	
-
-//	printf("value in mem: %o\n", *((uint8_t*)vcpu->mem_entry + vcpu->regs[PC] + post_word));
-
-//	return *((uint8_t*)vcpu->mem_entry + vcpu->regs[PC] + post_word);
-	return (vcpu->regs[PC] + post_word);
-}
-*/
 
 uint16_t get_rel_def_pc(vcpu_t* vcpu, uint8_t** address)
 {
@@ -245,8 +224,10 @@ uint16_t get_autoinc_sp(vcpu_t* vcpu, uint16_t isa_mode, uint8_t** address)
 
 	if (isa_mode)
 	{
-		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[SP] - 1);
-		operand = *((uint8_t*)vcpu->mem_entry + vcpu->regs[SP] - 1);						// FIXME: Need to check			
+//		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[SP] - 1);
+//		operand = *((uint8_t*)vcpu->mem_entry + vcpu->regs[SP] - 1);						// FIXME: Need to check			
+		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[SP]);
+		operand = *(uint8_t*)((uint8_t*)vcpu->mem_entry + vcpu->regs[SP]);						// FIXME: Need to check			
 	}
 	else
 	{
@@ -268,8 +249,10 @@ uint16_t get_autodec_sp(vcpu_t* vcpu, uint16_t isa_mode, uint8_t** address)
 
 	if (isa_mode)
 	{
-		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[SP] - 1);
-		operand = *((uint8_t*)vcpu->mem_entry + vcpu->regs[SP] - 1);		// FIXME: Need to check this line's correctness
+//		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[SP] - 1);
+//		operand = *((uint8_t*)vcpu->mem_entry + vcpu->regs[SP] - 1);		// FIXME: Need to check this line's correctness
+		*address = ((uint8_t*)vcpu->mem_entry + vcpu->regs[SP]);
+		operand = *(uint8_t*)((uint8_t*)vcpu->mem_entry + vcpu->regs[SP]);		// FIXME: Need to check this line's correctness
 	}
 	else
 	{

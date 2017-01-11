@@ -12,9 +12,6 @@
 #include <string.h>
 
 
-/* TODO: Parallel syncronisation on mutex */
-
-
 void throw_kb_interrupt(vcpu_t* vcpu, uint8_t data)
 {
 	SET_KB_DATA_REG(vcpu, data);	
@@ -131,7 +128,7 @@ int cpu_emulation(vcpu_t** vcpu, char* path)
 					exec_st = cpu_exec((*vcpu));			
 					vcpu_print(*vcpu);
 					
-					 sleep(1); // FIXME: Just for debug
+					// sleep(1); // FIXME: Just for debug
 
 					if (exec_st == EXEC_UNDEFINED)
 						break;	
@@ -226,4 +223,14 @@ uint8_t get_zflag(vcpu_t* vcpu)
 	uint8_t bit_z;
 	GET_Z(vcpu, bit_z);
 	return bit_z;
+}
+
+int is_emu_halt()
+{
+	return emulator_halted;
+}
+
+int is_emu_init()
+{
+	return emulator_initialized;
 }

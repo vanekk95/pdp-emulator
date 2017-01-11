@@ -7,9 +7,6 @@
 	extern "C" {
 #endif
 
-	int emulator_initialized;
-	int emulator_halted;
-
 	void throw_kb_interrupt(vcpu_t* vcpu, uint8_t data);
 	int cpu_emulation(vcpu_t** vcpu, char* path);
 	void halt_emulator(vcpu_t* vcpu);	
@@ -24,6 +21,8 @@
 	uint8_t get_cflag(vcpu_t* vcpu);
 	uint8_t get_vflag(vcpu_t* vcpu);
 	uint8_t get_zflag(vcpu_t* vcpu);
+	int is_emu_halt();
+	int is_emu_init();
 
 #ifdef __cplusplus
 }
