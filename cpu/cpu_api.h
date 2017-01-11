@@ -23,6 +23,7 @@
 	uint8_t get_zflag(vcpu_t* vcpu);
 	int is_emu_halt();
 	int is_emu_init();
+	uint16_t get_vram_val(vcpu_t* vcpu, int offset); 
 
 #ifdef __cplusplus
 }

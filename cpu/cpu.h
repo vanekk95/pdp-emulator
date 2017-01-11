@@ -4,27 +4,23 @@
 #include <stdint.h>
 
 #define GPR_NUM	8
-#define ADDR_SPACE_SIZE		0x20000	 // 128K in order to contain registers, need to fix it more accurate later
-#define MEM_SPACE_SIZE		0x10000	 // 64K	
-#define BR_POINT_ADDR		0x10010  // 65536 + 16
-#define KB_INTERRUPT_VEC	0x30	 //	48 in dec
-#define KB_STAT_REG			0x0FF70
-#define KB_DATA_REG			0x0FF72
+#define ADDR_SPACE_SIZE		0400000	 // 128K in order to contain registers
+#define MEM_SPACE_SIZE		0200000	 // 64K	
+#define BR_POINT_ADDR		0200020  // 65536 + 16
+#define KB_INTERRUPT_VEC	060	 	 //	48 in dec
+#define KB_STAT_REG			0177560
+#define KB_DATA_REG			0177562
 #define OUT_STAT_REG		0177564
 #define OUT_DATA_REG		0177566 
-
-#define PS_ADDR			0x0FFFE
+#define VRAM_BASE_ADDR		0100000	// 32 KB
+#define VRAM_LIMIT_ADDR		0160000	// 56 KB
+#define VRAM_SIZE	(VRAM_LIMIT_ADDR - VRAM_BASE_ADDR)	
+#define PS_ADDR			0177776
 #define PS_INIT_MASK 	0x0003		//0b0000000000000011	
-
 #define BREAK_BIT_MAP_SIZE_BYTES	1024 	
 
-
 typedef uint16_t reg16_t;
-typedef uint16_t pdp_reg;
 typedef uint16_t instr_t;
-typedef int16_t  word;
-typedef int8_t byte;
-
 
 typedef enum reg_id
 {
@@ -39,7 +35,7 @@ typedef enum reg_id
 
 	SP = REG6,
 	PC = REG7
-}	reg_t;
+} reg_t;
 
 typedef struct ps	
 {
@@ -63,16 +59,16 @@ typedef struct ps
 
 typedef struct vcpu
 {
-	pdp_reg* regs;
+	reg16_t* regs;
 	ps_t* psw;
 	void* mem_entry;
+	uint16_t* vram;
 	uint8_t stop_flag;
 	uint8_t step_flag;
 	uint8_t is_running;
 	uint8_t* br_points;
 	uint16_t* kb_stat_reg;
 	uint16_t* kb_data_reg;
-
 	uint16_t* out_stat_reg;
 	uint16_t* out_data_reg;
 
@@ -87,8 +83,6 @@ typedef enum exec_status
 	EXEC_END,
 	EXEC_UNDEFINED
 } exec_status_t;
-
-struct vcpu vcpu;
 
 #define GET_HI_BIT(val, mode)	((val >> (15 - 8 * mode)) & 0x0001)			
 
@@ -192,6 +186,11 @@ struct vcpu vcpu;
 #define INIT_OUT_STAT_REG(vcpu)	\
 	do {	\
 		*(vcpu->out_stat_reg) = 0200;	\
+ 	} while (0)
+
+#define INIT_IN_STAT_REG(vcpu)	\
+	do {	\
+		*(vcpu->kb_stat_reg) = 0200;	\
  	} while (0)
 
 /*

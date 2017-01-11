@@ -11,18 +11,6 @@
 #include <string.h>
 #include <sys/mman.h>
 
-
-uint8_t exec_array[] = 
-{
-	0b01000000, 0b00011100, 0b00001010, 0b00000000,
-	0b10000000, 0b10001100, 0b00000001, 0b00000001, 
-	0b01111111, 0b01111111, 0b10010001, 0b10000000,
-	0b01111111, 0b01111111, 0b01111111, 0b01111111,
-	0b01111111, 0b01111111, 0b01111111, 0b01111111, 
-	0b00000011, 0b00000000, 0b01111111, 0b01111111
-};
-
-
 int load_from_rom(char* path, void* mem)
 {
 	int fd = open(path, O_RDONLY);
@@ -34,10 +22,7 @@ int load_from_rom(char* path, void* mem)
 	}
 
 	long long size = lseek(fd, 0, SEEK_END);
-	printf("size: %lld\n", size);
-
 	void* mapped_area = mmap(NULL, size, PROT_READ, MAP_SHARED, fd, 0);
-
 	uint8_t* buf = malloc(sizeof(uint8_t) * (size/sizeof(uint8_t))); 
 
 	int i = 0, j = 0;
@@ -72,14 +57,12 @@ void interrupt_handler(vcpu_t* vcpu)
 
 int vcpu_init(vcpu_t* vcpu, void* mem, char* path_to_rom)
 {
-	printf("vcpu init\n");	
 	vcpu->mem_entry = mem;
 	vcpu->regs = (uint16_t*)((uint8_t*)mem + MEM_SPACE_SIZE);
-
-//	vcpu->regs[SP];			// FIXME: Need to deal with it 
-
-	vcpu->regs[PC] = 0x200;
 	
+	vcpu->regs[PC] = 0x200;	// FIXME: this value is chosen only for debug
+	
+	vcpu->vram = (uint16_t*)((uint8_t*)mem + VRAM_BASE_ADDR); 
 	vcpu->psw = (uint16_t*)((uint8_t*)mem + PS_ADDR);
 	vcpu->br_points = (uint8_t*)((uint8_t*)mem + BR_POINT_ADDR);
 	vcpu->kb_stat_reg = (uint16_t*)((uint8_t*)mem + KB_STAT_REG);
@@ -88,14 +71,12 @@ int vcpu_init(vcpu_t* vcpu, void* mem, char* path_to_rom)
 	vcpu->out_data_reg = (uint16_t*)((uint8_t*)mem + OUT_DATA_REG);
 
 	INIT_OUT_STAT_REG(vcpu);
-// FIXME: Need to enable kb and out stat regs 
-
+//	INIT_IN_STAT_REG(vcpu);
 	PS_INIT(vcpu);
 
 	vcpu->stop_flag = 0;
 	vcpu->is_running = 0;
 //	vcpu->is_running = 1;
-
 	vcpu->step_flag = 0;
 
 	load_from_rom(path_to_rom, vcpu->mem_entry);

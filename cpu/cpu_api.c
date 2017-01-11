@@ -234,3 +234,11 @@ int is_emu_init()
 {
 	return emulator_initialized;
 }
+
+uint16_t get_vram_val(vcpu_t* vcpu, int offset)	// FIXME: Need to handle 
+{
+	if (offset > VRAM_SIZE)
+		return 0xffff; 
+	
+	return *(vcpu->vram + offset);
+}
