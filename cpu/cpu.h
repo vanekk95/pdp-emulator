@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 #define GPR_NUM	8
-#define ADDR_SPACE_SIZE		0400000	 // 128K in order to contain registers
+#define ADDR_SPACE_SIZE		0400000	 // 128K 
 #define MEM_SPACE_SIZE		0200000	 // 64K	
 #define BR_POINT_ADDR		0200020  // 65536 + 16
 #define KB_INTERRUPT_VEC	060	 	 //	48 in dec

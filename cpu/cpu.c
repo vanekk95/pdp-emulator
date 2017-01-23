@@ -38,8 +38,7 @@ int load_from_rom(char* path, void* mem)
 		buf[i] = res;
 	}
 
-	
-//	memcpy((uint8_t*)mem + 0x200, buf, size/sizeof(uint8_t));
+	//	memcpy((uint8_t*)mem + 0x200, buf, size/sizeof(uint8_t));
 	memcpy((uint8_t*)mem + 0x0, buf, size/sizeof(uint8_t));
 
 
