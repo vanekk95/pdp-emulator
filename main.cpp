@@ -12,7 +12,7 @@ void *cpu(void *p){
     useconds_t usec = 300;
 
     vcpu_t* vcpu = (vcpu_t*)arg->vcpu;
-   	cpu_emulation(&vcpu, "/home/sabramov/test_pdp/hello.txt"); 
+   	cpu_emulation(&vcpu, "/home/sabramov/test_pdp/fill.txt"); 
  //   cpu_emulation(&vcpu, "/home/sabramov/test_pdp/array.txt");
 
     while (arg->working){
@@ -41,6 +41,8 @@ int main(int argc, char *argv[])
     callList.doStep = 0;
     callList.doStopReset = 0;
     callList.setBreakPointForAddress = -1;
+
+    printf("PDP 11 Emulator\n");
 
     SharedMem sharedMem;
     sharedMem.isFull = 0;
