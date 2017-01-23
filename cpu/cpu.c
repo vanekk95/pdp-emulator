@@ -42,7 +42,8 @@ int load_from_rom(char* path, void* mem)
 	}
 
 	
-	memcpy((uint8_t*)mem + 0x200, buf, size/sizeof(uint8_t));
+    //memcpy((uint8_t*)mem + 0x200, buf, size/sizeof(uint8_t));
+    memcpy((uint8_t*)mem + 0x0, buf, size/sizeof(uint8_t));
 
 	return 0;
 }
@@ -63,7 +64,8 @@ int vcpu_init(vcpu_t* vcpu, void* mem, char* path_to_rom)
 	vcpu->mem_entry = mem;
 	vcpu->regs = (uint16_t*)((uint8_t*)mem + MEM_SPACE_SIZE);
 	
-	vcpu->regs[PC] = 0x200;	// FIXME: this value is chosen only for debug
+    //vcpu->regs[PC] = 0x200;	// FIXME: this value is chosen only for debug
+    vcpu->regs[PC] = 0x0;
 	
 	vcpu->vram = (uint16_t*)((uint8_t*)mem + VRAM_BASE_ADDR); 
 	vcpu->psw = (uint16_t*)((uint8_t*)mem + PS_ADDR);
@@ -93,7 +95,8 @@ int vcpu_restore(vcpu_t* vcpu, char* path_to_rom)	// FIXME: Need to check
 	memset(vcpu->mem_entry, 0, MEM_SPACE_SIZE);
 //	memset(vcpu->br_points, 0, )		// TODO: Need to deal with brakpoints issue
 
-	vcpu->regs[PC] = 0x200;
+    //vcpu->regs[PC] = 0x200;
+    vcpu->regs[PC] = 0x0;
 
 	vcpu->stop_flag = 0;
 	vcpu->is_running = 0;

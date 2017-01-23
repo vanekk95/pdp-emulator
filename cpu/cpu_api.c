@@ -39,61 +39,6 @@ void reset_emulator(vcpu_t* vcpu)
 	CLEAR_RUN_FLAG(vcpu);
 }
 
-
-/*
-int cpu_emulation(vcpu_t* vcpu, char* path)
-{
-	emu_init(vcpu, path);	
-	vcpu_print(vcpu);
-
-	emulator_initialized = 1;
-	printf("emulator initialized\n");	
-
-	while (1)
-	{
-		if (vcpu->is_running)
-		{
-			emu_stat_t exec_st = EMU_SUCCESS;
-			
-			while (1)
-			{
-				if (!(vcpu->is_running))
-					break; 
-
-				if (is_break(vcpu, vcpu->regs[PC]))
-					SET_STOP_FLAG(vcpu);
-
-				if (!vcpu->stop_flag || vcpu->step_flag)
-				{
-					if (vcpu->stop_flag)			
-						RESET_STEP_FLAG(vcpu);	
-
-					exec_st = cpu_exec(vcpu);			
-					vcpu_print(vcpu);
-					
-					if (exec_st == EXEC_UNDEFINED)
-						break;	
-				
-					if (exec_st == EXEC_END)
-						break;
-				}
-			}			
-			
-			if (!(vcpu->is_running))
-				vcpu_restore(vcpu, path);				
-
-			if (exec_st == EXEC_END || exec_st == EXEC_UNDEFINED)
-				vcpu_restore(vcpu, path); 
-
-			if (exec_st == EXEC_END || exec_st == EXEC_UNDEFINED)
-				break;
-		}	
-	}
-
-	return 0;
-}
-*/
-
 int cpu_emulation(vcpu_t** vcpu, char* path)
 {
 	emu_init(*vcpu, path);	
@@ -123,16 +68,16 @@ int cpu_emulation(vcpu_t** vcpu, char* path)
 
 				if (! (*vcpu)->stop_flag || (*vcpu)->step_flag)
 				{
-					if ((*vcpu)->stop_flag)			
-						RESET_STEP_FLAG((*vcpu));	
+//					if ((*vcpu)->stop_flag)
+//						RESET_STEP_FLAG((*vcpu));
+
+                    if ((*vcpu)->stop_flag || !((*vcpu)->is_running))       // TODO: Need to check
+                        RESET_STEP_FLAG((*vcpu));
 
 					exec_st = cpu_exec((*vcpu));			
 					vcpu_print(*vcpu);
 					
 					// sleep(1); // FIXME: Just for debug
-
-					if (exec_st == EMU_UNDEFINED)
-						break;	
 				
 					if (exec_st == EMU_END)
 						break;
@@ -147,9 +92,6 @@ int cpu_emulation(vcpu_t** vcpu, char* path)
 
 			if (exec_st == EMU_END || exec_st == EMU_UNDEFINED)
 				vcpu_restore(*vcpu, path); 
-
-			if (exec_st == EMU_END || exec_st == EMU_UNDEFINED)
-				break;
 		}	
 	}
 
