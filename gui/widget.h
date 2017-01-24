@@ -27,6 +27,9 @@ public:
     explicit Widget(QWidget *parent = 0, Arg *arg = NULL);
     ~Widget();
 
+protected:
+    virtual void keyPressEvent(QKeyEvent *event);
+
 private:
     Ui::Widget *ui;
     QTimer *timer;

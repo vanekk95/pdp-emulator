@@ -85,6 +85,11 @@ void Widget::slotUpdateRegister() {
     sprintf(strtmp, "%x", get_zflag(vcpu));
     ui->flag_z->setText(strtmp);
 }
+void Widget::keyPressEvent(QKeyEvent *event) {
+    int key = event->key();     // целочисленный код клавиши
+    printf("key = %d\t c = %c\n", key, (char)key);
+    throw_kb_interrupt(vcpu, key);
+}
 
 void Widget::setEnableButton(State state) {
     switch (state) {
