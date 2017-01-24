@@ -33,7 +33,6 @@ int main(int argc, char *argv[])
     arg.argv = argv;
     arg.vcpu = (vcpu_t*)malloc(sizeof(vcpu_t));
     memset(arg.vcpu, 0, sizeof(vcpu_t));
-    arg.working = 1;
 
     pthread_t gui_st, cpu_st;
     errno = 0;
@@ -51,7 +50,7 @@ int main(int argc, char *argv[])
         printf("error pthread_join gui\n");
         return errno;
     }
-    arg.working = 0;
+    halt_emulator(arg.vcpu);
     errno = 0;
     if (pthread_join(cpu_st, NULL)) {
         printf("error pthread_join cpu\n");

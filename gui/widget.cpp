@@ -36,7 +36,7 @@ Widget::Widget(QWidget *parent, Arg *arg) :
             SLOT(userClicked(QModelIndex)));
 
     ui->buttonContinue->setEnabled(false);
-    ui->buttonStep->setEnabled(false);
+    ui->buttonStep->setEnabled(true);
     ui->buttonStop->setEnabled(false);
     ui->buttonReset->setEnabled(false);
 
