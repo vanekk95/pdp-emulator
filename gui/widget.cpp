@@ -36,8 +36,8 @@ Widget::Widget(QWidget *parent, Arg *arg) :
             SLOT(userClicked(QModelIndex)));
 
     ui->buttonContinue->setEnabled(false);
-    ui->buttonStep->setEnabled(true);
-    ui->buttonStop->setEnabled(false);
+    ui->buttonStep->setEnabled(false);
+    ui->buttonStop->setEnabled(true);
     ui->buttonReset->setEnabled(false);
 
     timer = new QTimer(this);
@@ -96,8 +96,8 @@ void Widget::setEnableButton(State state) {
     case StateInit:
         ui->buttonRun->setEnabled(true);
         ui->buttonContinue->setEnabled(false);
-        ui->buttonStep->setEnabled(true);
-        ui->buttonStop->setEnabled(false);
+        ui->buttonStep->setEnabled(false);
+        ui->buttonStop->setEnabled(true);
         ui->buttonReset->setEnabled(false);
         break;
     case StateRun:
